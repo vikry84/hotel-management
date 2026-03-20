@@ -1,0 +1,3703 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1A1A2E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Hotel Management System</title>
+<!-- Preconnect to speed up external resources -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com">
+<!-- Non-blocking font load -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-dark: #9B7B2E;
+  --dark: #1A1A2E;
+  --dark2: #16213E;
+  --dark3: #0F3460;
+  --cream: #FAF7F0;
+  --cream2: #F0EBE3;
+  --text: #2D2D2D;
+  --text-muted: #7A7A7A;
+  --success: #2E7D52;
+  --success-bg: #D4EDDA;
+  --danger: #C0392B;
+  --danger-bg: #FADBD8;
+  --warning: #D68910;
+  --warning-bg: #FDEBD0;
+  --info: #1F618D;
+  --info-bg: #D6EAF8;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Use system font stack first, swap to custom font when loaded */
+body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--cream2); color: var(--text); min-height: 100vh; }
+
+/* SPLASH SCREEN — shown instantly, hidden after Firebase ready */
+#app-splash {
+  position: fixed; inset: 0; background: #1A1A2E; z-index: 99999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+}
+#app-splash h1 { font-family: Georgia, serif; color: #C9A84C; font-size: 26px; letter-spacing: 1px; }
+#app-splash p  { color: rgba(255,255,255,0.5); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+.splash-dots { display: flex; gap: 8px; }
+.splash-dot  { width: 8px; height: 8px; border-radius: 50%; background: #C9A84C; animation: dotPulse 1.2s ease-in-out infinite; }
+.splash-dot:nth-child(2) { animation-delay: 0.2s; }
+.splash-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+/* SIDEBAR */
+#sidebar {
+  position: fixed; left: 0; top: 0; height: 100vh; width: 240px;
+  background: var(--dark); color: white; z-index: 100;
+  display: flex; flex-direction: column; transition: transform 0.3s;
+}
+.sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h1 { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold); line-height: 1.2; }
+.sidebar-logo p { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; letter-spacing: 2px; text-transform: uppercase; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 11px 20px;
+  cursor: pointer; color: rgba(255,255,255,0.65); font-size: 14px;
+  transition: all 0.2s; border-left: 3px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+.nav-item.active { background: rgba(201,168,76,0.15); color: var(--gold); border-left-color: var(--gold); }
+.nav-icon { width: 20px; text-align: center; font-size: 16px; }
+
+/* TOPBAR */
+#topbar {
+  position: fixed; top: 0; left: 240px; right: 0; height: 60px;
+  background: white; border-bottom: 1px solid var(--cream2);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; z-index: 90; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.topbar-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--dark); }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.badge-date { background: var(--cream2); color: var(--text-muted); font-size: 13px; padding: 6px 14px; border-radius: 20px; }
+.hamburger { display: none; cursor: pointer; font-size: 22px; color: var(--dark); background: none; border: none; }
+
+/* MAIN */
+#main { margin-left: 240px; padding-top: 60px; min-height: 100vh; }
+.page { display: none; padding: 28px; animation: fadeIn 0.4s ease-out; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CARDS POLISH */
+.stat-card {
+  background: white; border-radius: var(--radius); padding: 20px;
+  border: 1px solid var(--cream2); position: relative; overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--gold-light); }
+
+/* TOAST POLISH */
+.toast-msg {
+  padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 500;
+  color: white; animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  box-shadow: var(--shadow-lg); transition: all 0.3s ease;
+}
+@keyframes slideIn { from { transform: translateX(100%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+
+/* TABLE ROW HOVER */
+tr { transition: background 0.2s; }
+tr:hover td { background: var(--cream); }
+.stat-card .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.stat-card .value { font-size: 28px; font-weight: 600; margin-top: 4px; color: var(--dark); }
+.stat-card .icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 32px; opacity: 0.12; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.btn-primary { background: var(--gold); color: white; }
+.btn-primary:hover { background: var(--gold-dark); }
+.btn-outline { background: transparent; border: 1.5px solid var(--cream2); color: var(--text); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+.btn-success { background: var(--success); color: white; }
+
+/* TABLES */
+.table-wrap { background: white; border-radius: var(--radius); border: 1px solid var(--cream2); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-header { padding: 16px 20px; border-bottom: 1px solid var(--cream2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.table-header h3 { font-size: 16px; font-weight: 600; }
+table { width: 100%; border-collapse: collapse; }
+th { background: var(--cream); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 12px 16px; text-align: left; font-weight: 500; }
+td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--cream2); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--cream); }
+
+/* FORMS */
+.form-card { background: white; border-radius: var(--radius); padding: 28px; border: 1px solid var(--cream2); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 10px 14px; border: 1.5px solid var(--cream2); border-radius: 8px;
+  font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text);
+  transition: border-color 0.2s; background: var(--cream);
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none; border-color: var(--gold); background: white;
+}
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-section { margin-bottom: 24px; }
+.form-section-title { font-size: 15px; font-weight: 600; color: var(--dark); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--gold-light); }
+
+/* BADGES */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-warning { background: var(--warning-bg); color: var(--warning); }
+.badge-info { background: var(--info-bg); color: var(--info); }
+.badge-gray { background: var(--cream2); color: var(--text-muted); }
+
+/* CALENDAR */
+.calendar-wrap { background: white; border-radius: var(--radius); border: 1px solid var(--cream2); overflow: hidden; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; background: linear-gradient(135deg, var(--dark) 0%, var(--dark3) 100%); color: white; border-bottom: 1px solid rgba(201,168,76,0.25); }
+.cal-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #fff 0%, var(--gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+}
+.cal-header h3 span {
+  display: inline-block;
+}
+.cal-nav { display: flex; gap: 8px; }
+.cal-nav button { background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+.cal-nav button:hover { background: rgba(255,255,255,0.25); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-day-name { padding: 10px; text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 500; background: var(--cream); }
+.cal-day {
+  padding: 10px 8px; min-height: 80px; border: 0.5px solid var(--cream2);
+  cursor: pointer; transition: background 0.2s; position: relative;
+  vertical-align: top;
+}
+.cal-day:hover { background: var(--cream); }
+.cal-day .day-num { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; }
+.cal-day.today .day-num { background: var(--gold); color: white; }
+.cal-day.other-month { opacity: 0.35; }
+.cal-day.has-booking { background: rgba(201,168,76,0.05); }
+.booking-dot { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.booking-dot.room { background: var(--info-bg); color: var(--info); }
+.booking-dot.hall { background: var(--success-bg); color: var(--success); }
+
+/* Calendar chips */
+.cal-chip {
+  display: block; font-size: 10px; font-weight: 500;
+  padding: 2px 6px; border-radius: 4px; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.4;
+}
+.chip-kamar { background: var(--info-bg); color: var(--info); }
+.chip-aula  { background: var(--success-bg); color: var(--success); }
+.chip-sales { background: rgba(201,168,76,0.15); color: var(--gold-dark); }
+.busy-day   { background: rgba(192,57,43,0.05) !important; }
+.busy-day .day-num { background: var(--danger) !important; color: white !important; border-radius: 50%; }
+
+/* FLOOR PLAN */
+.floor-plan { background: var(--cream); border-radius: var(--radius); padding: 20px; border: 1px solid var(--cream2); }
+.floor-title { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 16px; }
+.room-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.room-cell {
+  width: 48px; height: 40px; border-radius: 6px; border: 1.5px solid var(--cream2);
+  display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; background: white; color: var(--text-muted);
+  position: relative;
+}
+.room-cell:hover { border-color: var(--gold); color: var(--gold); transform: scale(1.05); }
+.room-cell.occupied { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+.room-cell.vip { background: var(--warning-bg); border-color: var(--warning); color: var(--warning); }
+.room-cell.selected { background: var(--info-bg); border-color: var(--info); color: var(--info); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white; border-radius: 16px; width: 100%; max-width: 700px;
+  max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg);
+}
+.modal-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--cream2); display: flex; align-items: center; justify-content: space-between; }
+.modal-header h2 { font-family: 'Playfair Display', serif; font-size: 22px; }
+.modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: var(--cream2); }
+.modal-body { padding: 24px 28px; }
+.modal-footer { padding: 16px 28px 24px; border-top: 1px solid var(--cream2); display: flex; justify-content: flex-end; gap: 12px; }
+
+/* ADVANCE FEATURES */
+.advance-container { display: none; margin-top: 15px; padding: 15px; background: var(--cream); border-radius: 12px; border: 1px dashed var(--gold); }
+.advance-container.show { display: block; animation: slideDown 0.3s ease-out; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.file-upload-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--cream2); }
+.file-upload-item input[type="text"] { flex: 1; padding: 8px 12px; }
+.file-upload-item input[type="file"] { flex: 1; padding: 5px; }
+.file-upload-item .btn-remove { color: var(--danger); cursor: pointer; padding: 5px; font-size: 18px; border: none; background: none; }
+
+/* TABS */
+.tab-bar { display: flex; gap: 4px; background: var(--cream); border-radius: 10px; padding: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+.tab-btn { padding: 8px 18px; border-radius: 8px; border: none; background: none; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-muted); font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+.tab-btn.active { background: white; color: var(--dark); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+/* SEARCH */
+.search-box { display: flex; align-items: center; gap: 8px; background: var(--cream); border: 1.5px solid var(--cream2); border-radius: 8px; padding: 8px 14px; }
+.search-box input { border: none; background: none; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; width: 200px; }
+
+/* LEGEND */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.legend-dot { width: 14px; height: 14px; border-radius: 4px; }
+
+/* BUILDING TABS */
+.building-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.bld-btn { padding: 8px 16px; border: 1.5px solid var(--cream2); border-radius: 8px; background: white; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+.bld-btn:hover { border-color: var(--gold); color: var(--gold); }
+.bld-btn.active { background: var(--gold); border-color: var(--gold); color: white; }
+
+/* INFO BOX */
+.info-box { background: var(--info-bg); border-radius: var(--radius); padding: 16px 20px; border: 1px solid rgba(31,97,141,0.2); margin-bottom: 20px; }
+.info-box p { font-size: 14px; color: var(--info); }
+
+/* TOAST */
+#toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast-msg {
+  padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 500;
+  color: white; animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  box-shadow: var(--shadow-lg); transition: all 0.3s ease;
+}
+@keyframes slideIn { from { transform: translateX(100%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(-240px); }
+  #sidebar.open { transform: translateX(0); }
+  #main { margin-left: 0; }
+  #topbar { left: 0; }
+  .hamburger { display: block; }
+  .page { padding: 16px; }
+  .cal-day { min-height: 55px; padding: 6px 4px; }
+  .booking-dot { display: none; }
+  .cal-day.has-booking::after { content: '•'; color: var(--gold); font-size: 16px; position: absolute; bottom: 2px; right: 4px; }
+  table { font-size: 12px; }
+  th, td { padding: 8px 10px; }
+}
+@media (max-width: 480px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .modal { border-radius: 16px 16px 0 0; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+}
+#overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; }
+#overlay.open { display: block; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.section-header h2 { font-family: 'Playfair Display', serif; font-size: 24px; }
+
+.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.detail-item label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+.detail-item span { font-size: 14px; font-weight: 500; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; }
+
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 8px 14px; border: 1.5px solid var(--cream2); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.checkbox-item:hover { border-color: var(--gold); }
+.checkbox-item input { accent-color: var(--gold); }
+
+.order-section { background: var(--cream); border-radius: var(--radius); padding: 16px; margin-top: 12px; }
+.order-list { list-style: none; }
+.order-list li { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px dashed var(--cream2); }
+.order-list li:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN — shows instantly while Firebase loads -->
+<div id="app-splash">
+  <h1>🏨 Hotel Management</h1>
+  <p>Memuat sistem...</p>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-logo">
+    <h1>🏨 Hotel Management</h1>
+    <p>System v1.1</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="navigate('dashboard')">
+      <span class="nav-icon">🏠</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="navigate('booking')">
+      <span class="nav-icon">📋</span> Booking Tamu
+    </div>
+    <div class="nav-item" onclick="navigate('calendar')">
+      <span class="nav-icon">📅</span> Kalender Booking
+    </div>
+    <div class="nav-item" onclick="navigate('floorplan')">
+      <span class="nav-icon">🗺️</span> Denah Kamar & Aula
+    </div>
+    <div class="nav-item" onclick="navigate('guests')">
+      <span class="nav-icon">👥</span> Data Tamu
+    </div>
+    <div class="nav-item" onclick="navigate('orders')">
+      <span class="nav-icon">🍽️</span> Pesanan & Layanan
+    </div>
+    <div class="nav-item" onclick="navigate('report')">
+      <span class="nav-icon">📊</span> Laporan
+    </div>
+    <div class="nav-item admin-only" onclick="navigate('settings')" style="display:none;">
+      <span class="nav-icon">⚙️</span> Settings
+    </div>
+  </nav>
+</div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div style="display:flex;align-items:center;gap:14px">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <span class="topbar-title" id="page-title">Dashboard</span>
+  </div>
+  <div class="topbar-right">
+    <span id="user-info-display" style="font-size: 13px; color: var(--text-muted); font-weight: 500;"></span>
+    <span class="badge-date" id="current-date"></span>
+    <div style="position:relative;display:inline-block;">
+      <button id="warning-bell" onclick="toggleWarningPanel()" title="Peringatan Jadwal" style="background:none;border:none;cursor:pointer;font-size:20px;position:relative;padding:4px 6px;border-radius:8px;transition:background 0.2s;" onmouseover="this.style.background='var(--cream2)'" onmouseout="this.style.background='none'">🔔</button>
+      <span id="warning-badge" style="display:none;position:absolute;top:0;right:0;background:var(--danger);color:white;border-radius:50%;width:17px;height:17px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;"></span>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openNewBooking()">+ Booking Baru</button>
+    <button class="btn btn-outline btn-sm" onclick="logout()" title="Logout">🚪</button>
+  </div>
+
+  <!-- Warning Panel Dropdown -->
+  <div id="warning-panel" style="display:none;position:fixed;top:65px;right:16px;width:360px;max-height:480px;overflow-y:auto;background:white;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,0.18);border:1px solid var(--cream2);z-index:999;">
+    <div style="padding:16px 20px 12px;border-bottom:1px solid var(--cream2);display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--dark);">⚠️ Peringatan Jadwal</span>
+      <button onclick="toggleWarningPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);">✕</button>
+    </div>
+    <div id="warning-panel-body" style="padding:12px 16px;"></div>
+  </div>
+</div>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" style="position:fixed; inset:0; background:var(--dark); z-index:9999; display:flex; align-items:center; justify-content:center;">
+  <div class="form-card" style="width:100%; max-width:400px; box-shadow:var(--shadow-lg);">
+    <div style="text-align:center; margin-bottom:24px;">
+        <h1 style="font-family:'Playfair Display',serif; color:var(--gold); font-size:24px;">Hotel Management</h1>
+        <p id="auth-subtitle" style="color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:2px; margin-top:4px;">Secure Login</p>
+    </div>
+    <form id="auth-form" onsubmit="handleAuth(event)">
+        <div class="form-group" style="margin-bottom:16px;">
+            <label>Email</label>
+            <input type="email" id="login-username" required placeholder="email@hotel.com">
+        </div>
+        <div class="form-group" style="margin-bottom:24px;">
+            <label>Password</label>
+            <input type="password" id="login-password" required placeholder="Masukkan password">
+        </div>
+        <button type="submit" id="auth-btn" class="btn btn-primary" style="width:100%; justify-content:center;">Masuk ke Sistem</button>
+        <p id="login-error" style="color:var(--danger); font-size:13px; margin-top:12px; text-align:center; display:none;">Error message</p>
+        <p id="login-success" style="color:var(--success); font-size:13px; margin-top:12px; text-align:center; display:none;"></p>
+        <div style="text-align:center; margin-top:12px;">
+          <a href="#" id="forgot-pw-link" onclick="showForgotPassword(event)" style="font-size:12px;color:var(--text-muted);text-decoration:none;">Lupa password?</a>
+        </div>
+    </form>
+    <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--cream2); font-size:12px; color:var(--text-muted); text-align:center;">
+        <p id="auth-toggle-text">Belum punya akun? <a href="#" onclick="toggleAuthMode(event)" style="color:var(--gold); font-weight:600;">Daftar Sekarang</a></p>
+        <p style="margin-top:10px; opacity:0.7;">User pertama yang mendaftar akan otomatis menjadi Admin.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+<!-- Halaman dashboard, booking, dll... (Struktur sama seperti sebelumnya) -->
+<div class="page active" id="page-dashboard">
+
+  <!-- GLOBAL SEARCH -->
+  <div id="global-search-wrap" style="position:relative;margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:12px;background:white;border:2px solid var(--cream2);border-radius:14px;padding:12px 18px;box-shadow:0 2px 16px rgba(0,0,0,0.05);transition:border-color 0.2s;" id="search-bar-container">
+      <span style="font-size:20px;flex-shrink:0;">🔍</span>
+      <input
+        type="text"
+        id="global-search-input"
+        placeholder="Cari nama tamu, kamar, aula, lapangan, sales, no. HP, perusahaan..."
+        oninput="runGlobalSearch(this.value)"
+        onfocus="document.getElementById('search-bar-container').style.borderColor='var(--gold)'"
+        onblur="setTimeout(()=>{if(document.getElementById('global-search-results') && !document.getElementById('global-search-results').matches(':hover')){closeGlobalSearch()}},200)"
+        style="flex:1;border:none;outline:none;font-size:15px;font-family:'DM Sans',sans-serif;color:var(--dark);background:transparent;"
+        autocomplete="off"
+      >
+      <span id="search-result-count" style="font-size:12px;color:var(--text-muted);white-space:nowrap;"></span>
+      <button id="search-clear-btn" onclick="clearGlobalSearch()" style="display:none;background:var(--cream2);border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;color:var(--text-muted);flex-shrink:0;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div id="global-search-results" style="display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;background:white;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.15);border:1px solid var(--cream2);z-index:500;max-height:520px;overflow-y:auto;"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="label">Total Booking</div>
+      <div class="value" id="stat-total">0</div>
+      <div class="icon">📋</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Check-in Hari Ini</div>
+      <div class="value" id="stat-checkin">0</div>
+      <div class="icon">✅</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Kamar Terisi</div>
+      <div class="value" id="stat-rooms">0</div>
+      <div class="icon">🛏️</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Aula Terpakai</div>
+      <div class="value" id="stat-halls">0</div>
+      <div class="icon">🏛️</div>
+    </div>
+  </div>
+
+  <!-- Warning Section: Reservasi Mendekati -->
+  <div id="dashboard-warnings" style="margin-bottom:20px;"></div>
+
+  <!-- TAMU SEDANG STAY -->
+  <div id="staying-section" style="margin-bottom:24px;display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:#2E7D52;display:inline-block;box-shadow:0 0 0 3px rgba(46,125,82,0.2);animation:pulse-green 2s infinite;"></span>
+        <h3 style="font-family:'Playfair Display',serif;font-size:17px;color:var(--dark);margin:0;">Tamu Sedang Stay</h3>
+        <span id="staying-count-badge" style="background:#D4EDDA;color:#2E7D52;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;"></span>
+      </div>
+      <span style="font-size:12px;color:var(--text-muted);">Klik kartu untuk lihat detail</span>
+    </div>
+    <div id="staying-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+  </div>
+
+  <style>
+  @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 3px rgba(46,125,82,0.2)} 50%{box-shadow:0 0 0 6px rgba(46,125,82,0.08)} }
+  </style>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px">
+    <div class="table-wrap">
+      <div class="table-header">
+        <h3>Booking Terbaru</h3>
+        <button class="btn btn-outline btn-sm" onclick="navigate('booking')">Lihat Semua</button>
+      </div>
+      <table>
+        <thead><tr><th>Tamu</th><th>Sales</th><th>Gedung/Kamar</th><th>Tgl Masuk</th><th>Status</th></tr></thead>
+        <tbody id="recent-bookings"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Belum ada booking</td></tr></tbody>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <div class="table-header"><h3>Check-in Hari Ini</h3></div>
+      <table>
+        <thead><tr><th>Tamu</th><th>Sales</th><th>Kamar</th><th>Jml Orang</th><th>Status</th></tr></thead>
+        <tbody id="today-checkin"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Tidak ada hari ini</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Page -->
+<div class="page" id="page-booking">
+  <div class="section-header">
+    <h2>Booking Tamu</h2>
+    <button class="btn btn-primary" onclick="openNewBooking()">+ Booking Baru</button>
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" placeholder="Cari nama tamu..." id="search-booking" oninput="filterBookings()">
+    </div>
+    <select class="form-group" style="padding:8px 14px;border:1.5px solid var(--cream2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--cream)" id="filter-status" onchange="filterBookings()">
+      <option value="">Semua Status</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="checkin">Check-in</option>
+      <option value="checkout">Check-out</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>No</th><th>Nama Tamu</th><th>Jml Tamu</th><th>Gedung/Kamar</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="booking-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Kalender Page -->
+<div class="page" id="page-calendar">
+  <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <h2>Kalender Booking</h2>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;background:white;border:1.5px solid var(--cream2);border-radius:10px;padding:6px 14px;">
+        <span style="font-size:13px;color:var(--text-muted);font-weight:500;">Tampilkan:</span>
+        <select id="cal-filter-type" onchange="renderCalendar()" style="border:none;background:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--dark);font-weight:600;cursor:pointer;outline:none;padding-right:4px;">
+          <option value="all">🗂️ Semua</option>
+          <option value="kamar">🛏️ Kamar</option>
+          <option value="aula">🏛️ Aula</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:white;border:1.5px solid var(--cream2);border-radius:10px;padding:6px 14px;">
+        <span style="font-size:13px;color:var(--text-muted);font-weight:500;">Sales:</span>
+        <select id="cal-filter-sales" onchange="renderCalendar()" style="border:none;background:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--dark);font-weight:600;cursor:pointer;outline:none;padding-right:4px;">
+          <option value="">👤 Semua Sales</option>
+        </select>
+      </div>
+      <button onclick="resetCalFilter()" style="background:var(--cream2);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text-muted);cursor:pointer;font-weight:500;">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:10px 16px;background:white;border-radius:10px;border:1px solid var(--cream2);">
+    <span style="font-size:12px;color:var(--text-muted);font-weight:500;margin-right:4px;">Keterangan:</span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--info);display:inline-block;"></span> Kamar</span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block;"></span> Aula</span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block;"></span> Sales</span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--danger);display:inline-block;"></span> Penuh</span>
+  </div>
+
+  <div class="calendar-wrap">
+    <div class="cal-header">
+      <h3 id="cal-month-label"></h3>
+      <div class="cal-nav">
+        <button onclick="calNav(-1)">‹</button>
+        <button onclick="calNav(1)">›</button>
+      </div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-day-name">Min</div><div class="cal-day-name">Sen</div>
+      <div class="cal-day-name">Sel</div><div class="cal-day-name">Rab</div>
+      <div class="cal-day-name">Kam</div><div class="cal-day-name">Jum</div>
+      <div class="cal-day-name">Sab</div>
+    </div>
+    <div class="cal-grid" id="cal-body"></div>
+  </div>
+</div>
+
+<!-- Denah Page -->
+<div class="page" id="page-floorplan">
+  <div class="section-header"><h2>Denah Kamar & Aula</h2></div>
+
+  <!-- Selector Bar -->
+  <div style="background:white;border-radius:14px;border:1px solid var(--cream2);padding:20px 24px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+
+    <div style="flex:1;min-width:180px;">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏨 Kategori</label>
+      <select id="fp-category" onchange="onFloorplanCategoryChange()" style="width:100%;border:1.5px solid var(--cream2);border-radius:8px;padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--dark);background:white;font-weight:500;cursor:pointer;outline:none;">
+        <option value="">-- Pilih Kategori --</option>
+        <option value="gedung">🏢 Gedung / Hotel</option>
+        <option value="cottage">🏡 Cottage</option>
+        <option value="bungalow">🌿 Bungalow</option>
+        <option value="vip">⭐ Kamar VIP</option>
+        <option value="aula">🏛️ Aula & Lapangan</option>
+      </select>
+    </div>
+
+    <div style="flex:1;min-width:200px;">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏗️ Gedung / Lokasi</label>
+      <select id="fp-building" onchange="onFloorplanBuildingChange()" style="width:100%;border:1.5px solid var(--cream2);border-radius:8px;padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--dark);background:white;font-weight:500;cursor:pointer;outline:none;">
+        <option value="">-- Pilih dulu kategori --</option>
+      </select>
+    </div>
+
+    <div style="flex:1;min-width:160px;">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏢 Lantai / Area</label>
+      <select id="fp-floor" onchange="renderFloorplan()" style="width:100%;border:1.5px solid var(--cream2);border-radius:8px;padding:9px 12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--dark);background:white;font-weight:500;cursor:pointer;outline:none;">
+        <option value="all">Semua Lantai</option>
+      </select>
+    </div>
+
+    <!-- Info pills -->
+    <div id="fp-stat-pills" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:4px;"></div>
+  </div>
+
+  <!-- Legend -->
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding:10px 16px;background:white;border-radius:10px;border:1px solid var(--cream2);">
+    <span style="font-size:12px;color:var(--text-muted);font-weight:600;">Keterangan:</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:14px;height:14px;border-radius:4px;background:white;border:1.5px solid var(--cream2);display:inline-block;"></span> Tersedia</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:14px;height:14px;border-radius:4px;background:var(--danger-bg);border:1.5px solid var(--danger);display:inline-block;"></span> Terisi</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:14px;height:14px;border-radius:4px;background:var(--warning-bg);border:1.5px solid var(--warning);display:inline-block;"></span> VIP</span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:14px;height:14px;border-radius:4px;background:var(--info-bg);border:1.5px solid var(--info);display:inline-block;"></span> Aula / Hall</span>
+  </div>
+
+  <div id="floorplan-content">
+    <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+      <div style="font-size:48px;margin-bottom:12px;">🏨</div>
+      <p style="font-size:15px;">Pilih kategori dan gedung untuk melihat denah kamar.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Guests Page -->
+<div class="page" id="page-guests">
+  <div class="section-header"><h2>Data Tamu</h2></div>
+  <div class="search-box" style="margin-bottom:16px">
+    <span>🔍</span>
+    <input type="text" placeholder="Cari tamu..." id="search-guest" oninput="filterGuests()" style="width:300px">
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nama Tamu</th><th>Jumlah Tamu</th><th>No. HP</th><th>Riwayat Booking</th><th>Aksi</th></tr></thead>
+      <tbody id="guest-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Orders Page -->
+<div class="page" id="page-orders">
+  <div class="section-header"><h2>Pesanan & Layanan</h2></div>
+
+  <!-- Filter bar -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+    <div class="search-box" style="flex:1;min-width:180px;">
+      <span>🔍</span>
+      <input type="text" placeholder="Cari nama tamu..." id="search-orders" oninput="renderOrdersTable()" style="width:100%">
+    </div>
+    <select id="filter-orders-status" onchange="renderOrdersTable()"
+      style="border:1.5px solid var(--cream2);border-radius:8px;padding:8px 14px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--cream);">
+      <option value="">Semua Status</option>
+      <option value="booking">Booking</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="checkin">Check-in</option>
+    </select>
+    <select id="filter-orders-date" onchange="renderOrdersTable()"
+      style="border:1.5px solid var(--cream2);border-radius:8px;padding:8px 14px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--cream);">
+      <option value="">Semua Tanggal</option>
+      <option value="today">Hari Ini</option>
+      <option value="week">7 Hari ke Depan</option>
+      <option value="month">Bulan Ini</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tamu & Kamar</th>
+          <th>Layanan</th>
+          <th>Menu Makan</th>
+          <th>Snack</th>
+          <th>Keinginan Khusus</th>
+          <th>Tgl Check-in</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="orders-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Report Page -->
+<div class="page" id="page-report">
+  <div class="section-header"><h2>Laporan Hunian</h2></div>
+  <div class="stat-grid" id="report-stats"></div>
+  <div class="table-wrap">
+    <div class="table-header"><h3>Ringkasan Per Gedung</h3></div>
+    <table>
+      <thead><tr><th>Gedung</th><th>Total Kamar</th><th>Terisi</th><th>Tersedia</th><th>Persentase</th></tr></thead>
+      <tbody id="report-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Settings Page -->
+<div class="page" id="page-settings">
+  <div class="section-header"><h2>Pengaturan & Manajemen User</h2></div>
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+    <!-- User Management Card -->
+    <div class="form-card">
+        <h3 style="margin-bottom:16px;">Tambah User Baru</h3>
+        <form onsubmit="addUser(event)">
+            <div class="form-group" style="margin-bottom:12px;">
+                <label>Username (Email)</label>
+                <input type="email" id="new-user-name" required placeholder="email@hotel.com">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label>Password</label>
+                <input type="password" id="new-user-pass" required minlength="6">
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+                <label>Role / Jabatan</label>
+                <select id="new-user-role" required>
+                    <option value="staff">Staff / Receptionist</option>
+                    <option value="sales">Sales / Marketing</option>
+                    <option value="admin">Admin / Manager</option>
+                    <option value="maintenance">Maintenance / Engineer</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Buat Akun</button>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center;">Akun baru bisa langsung login setelah dibuat.</p>
+        </form>
+    </div>
+
+    <!-- User List Table Card -->
+    <div class="table-wrap">
+        <div class="table-header"><h3>Daftar User</h3></div>
+        <table>
+            <thead><tr><th>Username</th><th>Role</th><th>Aksi</th></tr></thead>
+            <tbody id="user-list-table"></tbody>
+        </table>
+    </div>
+
+    <!-- Access Control Settings Card -->
+    <div class="form-card" style="grid-column: 1 / -1;">
+        <h3 style="margin-bottom:16px;">Pengaturan Hak Akses (Engineer Only)</h3>
+        <div class="info-box">
+            <p>Tentukan siapa saja yang dapat melakukan aksi kritis dalam sistem.</p>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Siapa yang bisa menghapus booking?</label>
+                <select id="access-delete" onchange="updateAccessConfig('delete', this.value)">
+                    <option value="all">Semua Role</option>
+                    <option value="sales">Sales / Marketing</option>
+                    <option value="admin">Hanya Admin</option>
+                    <option value="maintenance">Hanya Maintenance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Siapa yang bisa mengedit booking?</label>
+                <select id="access-edit" onchange="updateAccessConfig('edit', this.value)">
+                    <option value="all">Semua Role</option>
+                    <option value="sales">Sales / Marketing</option>
+                    <option value="admin">Hanya Admin</option>
+                    <option value="maintenance">Hanya Maintenance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Mode Akses Terbatas (Exclusive Access)</label>
+                <select id="access-exclusive" onchange="updateAccessConfig('exclusive', this.value)">
+                    <option value="none">Normal (Semua User Bisa Login)</option>
+                    <option value="maintenance">Hanya Maintenance/Engineer</option>
+                    <option value="admin">Hanya Admin & Maintenance</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Building & Room Management Card -->
+    <div class="form-card admin-only" style="grid-column: 1 / -1; display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+            <h3 style="margin:0;">Manajemen Gedung & Kamar (Engineer Only)</h3>
+            <button class="btn btn-outline btn-sm" onclick="resetBuildingsToDefault()">🔄 Reset ke Default</button>
+        </div>
+        <div class="info-box">
+            <p>Edit nama gedung, jumlah lantai, dan jumlah kamar di sini. Perubahan akan langsung berdampak pada denah dan pilihan kamar.</p>
+        </div>
+        <div class="table-wrap" style="width:100%; overflow-x:auto;">
+            <table style="min-width: 800px;">
+                <thead>
+                    <tr>
+                        <th style="width:100px">ID</th>
+                        <th style="width:200px">Nama Gedung</th>
+                        <th style="width:100px">Tipe</th>
+                        <th>Struktur (Lantai/Kamar)</th>
+                        <th style="width:80px">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="building-list-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Catering Management Card -->
+    <div class="form-card admin-only" style="grid-column: 1 / -1; display:none;">
+        <h3 style="margin-bottom:16px;">Manajemen Katering (Engineer Only)</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Daftar Menu Makanan (Main Course)</label>
+                <textarea id="setting-menu-meals" placeholder="Pisahkan dengan koma (contoh: Ayam, Rendang, Nasi Goreng)"></textarea>
+                <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px" onclick="saveCateringSettings('meals')">Simpan Menu</button>
+            </div>
+            <div class="form-group">
+                <label>Daftar Menu Snack</label>
+                <textarea id="setting-menu-snacks" placeholder="Pisahkan dengan koma (contoh: Risoles, Lemper, Pisang Goreng)"></textarea>
+                <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px" onclick="saveCateringSettings('snacks')">Simpan Snack</button>
+            </div>
+        </div>
+        <div class="info-box" style="margin-top:20px">
+            <p>Aturan Paket: <strong>Deluxe</strong> (3x Makan, 2x Snack) | <strong>Standard</strong> (2x Makan, 1x Snack)</p>
+        </div>
+    </div>
+  </div>
+</div>
+</div><!-- end main -->
+
+<!-- MODAL BOOKING -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Booking Baru</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="booking-form" onsubmit="saveBooking(event)">
+        <div class="form-section">
+          <div class="form-section-title">Data Tamu</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nama Tamu / Pemesan *</label>
+              <input type="text" id="f-name" required placeholder="Nama lengkap">
+            </div>
+            <div class="form-group">
+              <label>Jumlah Tamu *</label>
+              <input type="number" id="f-guests" min="1" required placeholder="Jumlah orang">
+            </div>
+            <div class="form-group">
+              <label>No. HP / Kontak *</label>
+              <input type="tel" id="f-phone" required placeholder="08xxxxxxxxxx">
+            </div>
+            <div class="form-group">
+              <label>Alamat Tamu *</label>
+              <textarea id="f-address" required placeholder="Alamat lengkap tamu" style="height: 40px; min-height: 40px;"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Nama Sales / Handle By *</label>
+              <select id="f-sales" required>
+                <option value="">-- Pilih Sales --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Upload KTP / Dokumen</label>
+              <input type="file" id="f-ktp" accept="image/*,.pdf" onchange="handleKTPUpload(this)">
+              <input type="hidden" id="f-ktp-url">
+              <div id="ktp-preview" style="margin-top: 5px; font-size: 11px; color: var(--info);"></div>
+            </div>
+            <div class="form-group">
+              <label>Instansi / Perusahaan</label>
+              <input type="text" id="f-company" placeholder="Opsional">
+            </div>
+            <div class="form-group">
+              <label>Type Reservasi *</label>
+              <select id="f-reservation-type" required>
+                <option value="">-- Pilih Type --</option>
+                <option value="Group">Group</option>
+                <option value="F.I.T">F.I.T</option>
+                <option value="One Day Event">One Day Event</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Status & Pembayaran</div>
+          <div class="form-grid" style="margin-bottom:20px;">
+            <div class="form-group">
+              <label>Status Booking</label>
+              <select id="f-status" required>
+                <option value="booking">Booking</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="checkin">Check-in</option>
+                <option value="checkout">Check-out</option>
+                <option value="postponed">Postponed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Total Biaya (Rp)</label>
+              <div style="position:relative;">
+                <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--text-muted);">Rp</span>
+                <input type="text" id="f-total-payment" placeholder="0" inputmode="numeric"
+                  oninput="formatCurrencyInput(this);updateSisaBayar()" onblur="formatCurrencyInput(this);updateSisaBayar()"
+                  style="padding-left:34px;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Ringkasan Pembayaran -->
+          <div id="payment-summary" style="display:none;background:var(--cream);border-radius:10px;padding:14px 16px;margin-bottom:16px;border:1px solid var(--cream2);">
+            <div style="display:flex;flex-wrap:wrap;gap:12px;">
+              <div style="flex:1;min-width:120px;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:3px;">Total Biaya</div>
+                <div style="font-size:15px;font-weight:700;color:var(--dark);" id="summary-total">Rp 0</div>
+              </div>
+              <div style="flex:1;min-width:120px;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:3px;">Sudah Dibayar</div>
+                <div style="font-size:15px;font-weight:700;color:var(--success);" id="summary-paid">Rp 0</div>
+              </div>
+              <div style="flex:1;min-width:120px;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:3px;">Sisa</div>
+                <div style="font-size:15px;font-weight:700;" id="summary-sisa">Rp 0</div>
+              </div>
+            </div>
+            <div id="summary-bar-wrap" style="margin-top:10px;background:rgba(0,0,0,0.08);border-radius:4px;height:6px;overflow:hidden;">
+              <div id="summary-bar" style="height:100%;width:0%;background:var(--success);border-radius:4px;transition:width 0.4s;"></div>
+            </div>
+          </div>
+
+          <!-- Riwayat Pembayaran -->
+          <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+            <label style="font-size:13px;font-weight:600;color:var(--dark);">📋 Riwayat Pembayaran</label>
+            <button type="button" onclick="addPaymentRecord()" class="btn btn-outline btn-sm" style="gap:6px;">+ Tambah Bayar</button>
+          </div>
+          <div id="payment-records" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Pilihan Kamar</div>
+            <div id="f-rooms-list" style="margin-top:12px; margin-bottom:12px;"></div>
+            <button type="button" class="btn btn-outline" onclick="openRoomPicker()">🗂️ Pilih Kamar</button>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">Jadwal Booking</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tanggal Check-in *</label>
+                    <input type="date" id="f-checkin" required>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Check-out *</label>
+                    <input type="date" id="f-checkout" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Sewa Aula</div>
+          <div class="form-group">
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK"> BSK</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 2"> BSK 2</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 3"> BSK 3</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="Bougenvile"> Bougenvile</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="Beringin"> Beringin</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="Melati A"> Melati A</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="Bhaksana"> Bhaksana</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="Nusa Ina"> Nusa Ina</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="Timor 1"> Timor 1</label>
+              <label class="checkbox-item"><input type="checkbox" name="aula" value="Timor 2"> Timor 2</label>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top: 15px;">
+            <div class="form-group">
+              <label>Kapasitas Orang (Aula)</label>
+              <input type="number" id="f-aula-capacity" placeholder="Contoh: 100">
+            </div>
+            <div class="form-group">
+              <label>Formasi Aula</label>
+              <select id="f-aula-layout">
+                <option value="">-- Pilih Formasi --</option>
+                <option value="Theater">Theater</option>
+                <option value="Classroom">Classroom</option>
+                <option value="U-Shape">U-Shape</option>
+                <option value="Round Table">Round Table</option>
+                <option value="Boardroom">Boardroom</option>
+              </select>
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label>Catatan Aula</label>
+              <textarea id="f-aula-notes" placeholder="Catatan khusus untuk pengaturan aula..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Pesanan & Layanan</div>
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:1/-1">
+              <label>Keinginan Khusus</label>
+              <textarea id="f-wishes" placeholder="Contoh: kamar non-smoking, lantai tinggi, baby crib, dll..."></textarea>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:12px">
+            <label>Paket / Layanan Tambahan</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Sarapan"> 🍳 Sarapan</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Welcome Drink"> 🥤 Welcome Drink</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Makan Siang"> 🍱 Makan Siang</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Makan Malam"> 🍽️ Makan Malam</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Laundry"> 👕 Laundry</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Transport"> 🚐 Transport</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Tour Guide"> 🗺️ Tour Guide</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Meeting Package"> 💼 Meeting Package</label>
+              <label class="checkbox-item"><input type="checkbox" name="service" value="Wedding Package"> 💒 Wedding Package</label>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label class="checkbox-item" style="font-weight: 600; color: var(--gold-dark); margin-bottom: 0;">
+            <input type="checkbox" id="f-advance-mode" onchange="toggleAdvanceMode(this.checked)"> 🚀 Fitur Lanjutan (Advance)
+          </label>
+          
+          <div id="advance-container" class="advance-container">
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label>Pilihan Menu / Konsumsi</label>
+              <select id="f-catering-package" onchange="renderCateringSelectors(this.value)" style="margin-bottom:10px;">
+                <option value="">-- Tanpa Paket Katering --</option>
+                <option value="deluxe">Paket Deluxe (3x Makan, 2x Snack)</option>
+                <option value="standard">Paket Standard (2x Makan, 1x Snack)</option>
+              </select>
+              <div id="catering-items-selector" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; background:white; padding:15px; border-radius:10px; border:1px solid var(--cream2);">
+                <!-- Dynamic catering selectors will be injected here -->
+              </div>
+              <textarea id="f-menu-options" placeholder="Catatan tambahan menu (opsional)..." style="margin-top:10px;"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label style="display:flex; justify-content:space-between; align-items:center;">
+                Dokumen Tambahan
+                <button type="button" class="btn btn-outline btn-sm" onclick="addFileUploadItem()" style="padding:2px 8px; font-size:11px;">+ Tambah File</button>
+              </label>
+              <div id="dynamic-file-list" style="margin-top:10px;">
+                <!-- Dynamic file upload items will be added here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" id="f-id">
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Simpan Booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL BOOKING -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Detail Booking</h2>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div id="delegate-zone" style="display:none;padding:0 28px 4px;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="printBooking()">🖨️ Cetak</button>
+      <button class="btn btn-outline btn-sm" onclick="closeDetailModal()">Tutup</button>
+      <button class="btn btn-outline btn-sm" id="edit-booking-btn">✏️ Edit</button>
+      <button class="btn btn-danger btn-sm" id="delete-booking-btn">🗑️ Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DAY DETAIL -->
+<div class="modal-overlay" id="day-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="day-modal-title">Booking Tanggal</h2>
+      <button class="modal-close" onclick="document.getElementById('day-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="day-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('day-modal').classList.remove('open')">Tutup</button>
+      <button class="btn btn-primary" onclick="document.getElementById('day-modal').classList.remove('open');openNewBooking()">+ Booking di Tanggal Ini</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ROOM PICKER -->
+<div class="modal-overlay" id="room-picker-modal">
+  <div class="modal" style="max-width: 900px;">
+    <div class="modal-header">
+      <h2>Pilih Kamar</h2>
+      <button class="modal-close" onclick="closeRoomPicker()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="building-selector" id="picker-building-selector"></div>
+      <div id="picker-floorplan-content" style="background:white;border-radius:var(--radius);padding:24px;border:1px solid var(--cream2);max-height:55vh;overflow-y:auto;"></div>
+    </div>
+    <div class="modal-footer">
+        <div style="flex:1;font-size:13px;color:var(--text-muted)">Telah dipilih: <strong id="picker-selection-count">0</strong> kamar</div>
+        <button type="button" class="btn btn-outline" onclick="closeRoomPicker()">Batal</button>
+        <button type="button" class="btn btn-primary" onclick="confirmRoomSelection()">Konfirmasi Pilihan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ITEM SCHEDULE -->
+<div class="modal-overlay" id="item-schedule-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="schedule-modal-title">Jadwal Pemakaian</h2>
+      <button class="modal-close" onclick="document.getElementById('item-schedule-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+        <div id="schedule-modal-info" style="margin-bottom: 20px;"></div>
+        <div class="table-wrap">
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Tamu</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-modal-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="document.getElementById('item-schedule-modal').classList.remove('open')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT BUILDING -->
+<div class="modal-overlay" id="edit-building-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Edit Gedung/Cottage</h2>
+      <button class="modal-close" onclick="closeEditBuildingModal()">✕</button>
+    </div>
+    <div class="modal-body">
+        <form id="edit-building-form" onsubmit="saveBuildingConfig(event)">
+            <input type="hidden" id="eb-id">
+            <div class="form-group" style="margin-bottom:12px;">
+                <label>Nama Gedung</label>
+                <input type="text" id="eb-name" required>
+            </div>
+            <div id="eb-floors-container"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeEditBuildingModal()">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+<script>
+// ====================== FIREBASE CONFIG ======================
+const firebaseConfig = {
+  apiKey: "AIzaSyByLBqjz-HIOWlcuzGQ2qSbk0XO8zV1SvQ",
+  authDomain: "hotel-system-fad3b.firebaseapp.com",
+  databaseURL: "https://hotel-system-fad3b-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "hotel-system-fad3b",
+  storageBucket: "hotel-system-fad3b.firebasestorage.app",
+  messagingSenderId: "139143625119",
+  appId: "1:139143625119:web:185878b7fd22666f3d25aa",
+  measurementId: "G-8LE6PLHZ5G"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Fallback: update splash message if loading takes >3s, remove at 8s max
+setTimeout(() => {
+  const s = document.getElementById('app-splash');
+  if (s) { const p = s.querySelector('p'); if (p) p.textContent = 'Koneksi lambat, harap tunggu...'; }
+}, 3000);
+setTimeout(() => {
+  const s = document.getElementById('app-splash');
+  if (s) { s.style.opacity='0'; setTimeout(()=>s.remove(),400); }
+}, 8000);
+
+const db = firebase.database();
+const auth = firebase.auth();
+const bookingsRef = db.ref('bookings');
+const buildingsRef = db.ref('config/buildings');
+const cateringRef = db.ref('config/catering');
+
+// ====================== DATA ======================
+const DEFAULT_CATERING = {
+  packages: {
+    deluxe: { name: 'Deluxe', meals: 3, snacks: 2 },
+    standard: { name: 'Standard', meals: 2, snacks: 1 }
+  },
+  menuItems: {
+    meals: ['Ayam Kalasan', 'Rendang', 'Nasi Goreng', 'Tempe Bacem', 'Ikan Bakar'],
+    snacks: ['Risoles', 'Lemper', 'Kue Sus', 'Pisang Goreng']
+  }
+};
+
+const DEFAULT_BUILDINGS = {
+  melati: { name: 'Gedung Melati', type: 'gedung', floors: [
+    { name: 'Lantai 1', rooms: 25, vip: 1 },
+    { name: 'Lantai 2', rooms: 25, vip: 1 },
+    { name: 'Lantai 3', rooms: 25, vip: 1 },
+  ]},
+  kinasih: { name: 'Gedung Kinasih', type: 'gedung', floors: [
+    { name: 'Lantai 1', rooms: 28, vip: 0 },
+    { name: 'Lantai 2', rooms: 18, vip: 0 },
+    { name: 'Lantai 3', rooms: 16, vip: 0 },
+  ]},
+  anuraga: { name: 'Gedung Anuraga', type: 'gedung', floors: [
+    { name: 'Lantai 1', rooms: 8, vip: 1 },
+    { name: 'Lantai 2', rooms: 8, vip: 1 },
+  ]},
+  kamboja: { name: 'Gedung Kamboja', type: 'gedung', floors: [
+    { name: 'Lantai 1', rooms: 28, vip: 0 },
+  ]},
+  semboja: { name: 'Gedung Semboja', type: 'gedung', floors: [
+    { name: 'Lantai 1', rooms: 7, vip: 0 },
+  ]},
+  ekaprana: { name: 'Cottage Ekaprana', type: 'cottage', floors: [{ name: 'Unit', rooms: 4, vip: 0 }] },
+  dwitya: { name: 'Cottage Dwitya', type: 'cottage', floors: [{ name: 'Unit', rooms: 4, vip: 0 }] },
+  tridatu: { name: 'Cottage Tridatu', type: 'cottage', floors: [{ name: 'Unit', rooms: 4, vip: 0 }] },
+  masawangan: { name: 'Cottage Masawangan', type: 'cottage', floors: [{ name: 'Unit', rooms: 4, vip: 0 }] },
+  maesaan: { name: 'Cottage Maesaan', type: 'cottage', floors: [{ name: 'Unit', rooms: 4, vip: 0 }] },
+  bungalow: { name: 'Bungalow Waipee', type: 'bungalow', floors: [{ name: 'Unit', rooms: 16, vip: 0, prefix: 'Waipee ' }] },
+  'vip-kamboja': { name: 'Kamar VIP Kamboja', type: 'vip', floors: [{ name: 'VIP', rooms: 5, vip: 5 }] },
+  'aula-hall': { name: 'Sewa Aula', type: 'aula', floors: [
+    { name: 'Aula', rooms: 0, vip: 0, special: [
+      { id: 'BSK', label: 'BSK', cap: 700 },
+      { id: 'BSK2', label: 'BSK 2', cap: 50 },
+      { id: 'BSK3', label: 'BSK 3', cap: 50 },
+      { id: 'Bougenvile', label: 'Bougenvile', cap: 250 },
+      { id: 'Beringin', label: 'Beringin', cap: 120 },
+      { id: 'MelatiA', label: 'Melati A', cap: 150 },
+      { id: 'Bhaksana', label: 'Bhaksana', cap: 200 },
+      { id: 'NusaIna', label: 'Nusa Ina', cap: 250 },
+      { id: 'Timor1', label: 'Timor 1', cap: 100 },
+      { id: 'Timor2', label: 'Timor 2', cap: 60 }
+    ]}
+  ]}
+};
+
+let BUILDINGS = {};
+let CATERING = {};
+let bookings = [];
+let editingId = null;
+let currentCal = new Date();
+let selectedBuilding = 'melati';
+let pickerSelectedBuilding = 'melati';
+let tempSelectedRooms = [];
+let currentPage = 'dashboard';
+let currentUser = null;
+
+// ====================== INIT ======================
+let initialized = false;
+function init() {
+  if (initialized) return;
+  initialized = true;
+
+  BUILDINGS = JSON.parse(JSON.stringify(DEFAULT_BUILDINGS));
+  renderReport();
+  updateDashboard();
+  navigate('dashboard');
+
+  document.getElementById('current-date').textContent = new Date().toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  
+  buildingsRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) { BUILDINGS = data; } 
+    else { BUILDINGS = JSON.parse(JSON.stringify(DEFAULT_BUILDINGS)); buildingsRef.set(BUILDINGS); }
+    renderReport(); updateDashboard(); if (currentPage === 'settings') renderSettings(); if (currentPage === 'floorplan') renderFloorplan();
+  });
+
+  cateringRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) { CATERING = data; } 
+    else { CATERING = JSON.parse(JSON.stringify(DEFAULT_CATERING)); cateringRef.set(CATERING); }
+    if (currentPage === 'settings') renderSettings();
+  });
+
+  bookingsRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    bookings = data ? Object.keys(data).map(key => ({ ...data[key], id: key })) : [];
+    renderCalendar(); if (currentPage === 'floorplan') renderFloorplan(); updateDashboard(); renderBookingTable(); renderGuestTable(); renderOrdersTable(); renderReport();
+  });
+
+  // Ambil data user untuk dropdown Sales
+  db.ref('users').on('value', (snapshot) => {
+    const users = snapshot.val();
+    const salesSelect = document.getElementById('f-sales');
+    if (salesSelect && users) {
+      const currentVal = salesSelect.value;
+      salesSelect.innerHTML = '<option value="">-- Pilih Sales --</option>';
+      Object.values(users).forEach(u => {
+        const option = document.createElement('option');
+        option.value = u.email;
+        option.textContent = u.email;
+        salesSelect.appendChild(option);
+      });
+      if (currentVal) salesSelect.value = currentVal;
+    }
+  });
+
+  // Logika otomatis untuk tanggal Check-out
+  document.getElementById('f-checkin').addEventListener('change', function() {
+    const checkinDate = new Date(this.value);
+    if (!isNaN(checkinDate.getTime())) {
+      checkinDate.setDate(checkinDate.getDate() + 1);
+      document.getElementById('f-checkout').value = checkinDate.toISOString().split('T')[0];
+    }
+  });
+}
+
+auth.onAuthStateChanged((user) => {
+    // Hide splash screen as soon as auth state is known
+    const splash = document.getElementById('app-splash');
+    if (splash) { splash.style.transition = 'opacity 0.4s'; splash.style.opacity = '0'; setTimeout(() => splash.remove(), 400); }
+
+    if (user) {
+        db.ref('users').once('value', (snap) => {
+            if (!snap.exists()) {
+                // Very first user ever — make them maintenance
+                db.ref('users/' + user.uid).set({ email: user.email, role: 'maintenance' }).then(() => {
+                    showToast('🔧 System Initialized', 'success');
+                    loginSuccess({ uid: user.uid, username: user.email, role: 'maintenance' });
+                });
+            } else {
+                const users = snap.val();
+                const data  = users[user.uid];
+                if (data) {
+                    loginSuccess({ uid: user.uid, username: user.email, role: data.role });
+                } else {
+                    // User exists in Auth but not in DB (old account or created externally)
+                    // Auto-register as staff so they can log in
+                    db.ref('users/' + user.uid).set({ email: user.email, role: 'staff' }).then(() => {
+                        showToast('ℹ️ Akun ditemukan, akses diberikan sebagai Staff.', 'info');
+                        loginSuccess({ uid: user.uid, username: user.email, role: 'staff' });
+                    });
+                }
+            }
+        });
+    } else {
+        document.getElementById('login-overlay').style.display = 'flex';
+        currentUser = null;
+    }
+});
+
+// ====================== NAVIGATION ======================
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  const titles = { dashboard:'Dashboard', booking:'Booking Tamu', calendar:'Kalender Booking', floorplan:'Denah Kamar & Aula', guests:'Data Tamu', orders:'Pesanan & Layanan', report:'Laporan', settings: 'Settings' };
+  const idx = ['dashboard','booking','calendar','floorplan','guests','orders','report', 'settings'].indexOf(page);
+  if (idx >= 0 && navItems[idx]) navItems[idx].classList.add('active');
+  document.getElementById('page-title').textContent = titles[page] || '';
+  closeSidebar();
+  if (page === 'calendar') renderCalendar();
+  if (page === 'floorplan') {
+    // Only re-render if a building is already selected via dropdown
+    const bldVal = document.getElementById('fp-building')?.value;
+    if (bldVal) renderFloorplan();
+  }
+  if (page === 'report') renderReport();
+  if (page === 'settings') renderSettings();
+}
+
+function renderSettings() {
+    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'maintenance')) return;
+    db.ref('users').once('value', (snapshot) => {
+        const users = snapshot.val();
+        const tbody = document.getElementById('user-list-table');
+        if (!users) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Belum ada user.</td></tr>'; return; }
+        tbody.innerHTML = Object.keys(users).map(uid => `
+            <tr>
+                <td>${users[uid].email}</td>
+                <td><span class="badge badge-info">${users[uid].role}</span></td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteUser('${uid}')">🗑️</button></td>
+            </tr>
+        `).join('');
+    });
+    db.ref('config/access').once('value', (snapshot) => {
+        const config = snapshot.val() || { delete: 'admin', edit: 'all', exclusive: 'none' };
+        const isMaint = currentUser.role === 'maintenance';
+        document.getElementById('access-delete').value = config.delete || 'admin';
+        document.getElementById('access-edit').value = config.edit || 'all';
+        document.getElementById('access-exclusive').value = config.exclusive || 'none';
+        document.getElementById('access-delete').disabled = !isMaint;
+        document.getElementById('access-edit').disabled = !isMaint;
+        document.getElementById('access-exclusive').disabled = !isMaint;
+    });
+
+    // Catering Settings
+    if (CATERING.menuItems) {
+        document.getElementById('setting-menu-meals').value = (CATERING.menuItems.meals || []).join(', ');
+        document.getElementById('setting-menu-snacks').value = (CATERING.menuItems.snacks || []).join(', ');
+    }
+}
+
+function saveCateringSettings(type) {
+    if (currentUser.role !== 'maintenance' && currentUser.role !== 'admin') {
+        showToast('Hanya Admin/Maintenance yang bisa ubah ini!', 'error'); return;
+    }
+    const elId = type === 'meals' ? 'setting-menu-meals' : 'setting-menu-snacks';
+    const val = document.getElementById(elId).value;
+    const list = val.split(',').map(s => s.trim()).filter(s => s !== '');
+    cateringRef.child('menuItems/' + type).set(list).then(() => {
+        showToast(`✅ Menu ${type === 'meals' ? 'makanan' : 'snack'} berhasil disimpan!`, 'success');
+    }).catch(err => showToast('Error: ' + err.message, 'error'));
+}
+
+function loginSuccess(userObj) {
+    currentUser = userObj;
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('user-info-display').textContent = `👤 ${userObj.username} (${userObj.role})`;
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = (userObj.role==='admin'||userObj.role==='maintenance')?'flex':'none');
+    showToast('Selamat datang!', 'success');
+    init();
+    setTimeout(() => { navigate('dashboard'); updateDashboard(); }, 100);
+}
+
+function logout() { auth.signOut().then(() => location.reload()); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+let isRegisterMode = false;
+function toggleAuthMode(e) {
+    e.preventDefault();
+    isRegisterMode = !isRegisterMode;
+    const subtitle = document.getElementById('auth-subtitle');
+    const btn = document.getElementById('auth-btn');
+    const toggleText = document.getElementById('auth-toggle-text');
+    const errorEl = document.getElementById('login-error');
+    errorEl.style.display = 'none';
+    if (isRegisterMode) {
+        subtitle.textContent = 'User Registration';
+        btn.textContent = 'Daftar Akun Baru';
+        toggleText.innerHTML = 'Sudah punya akun? <a href="#" onclick="toggleAuthMode(event)" style="color:var(--gold); font-weight:600;">Masuk di sini</a>';
+    } else {
+        subtitle.textContent = 'Secure Login';
+        btn.textContent = 'Masuk ke Sistem';
+        toggleText.innerHTML = 'Belum punya akun? <a href="#" onclick="toggleAuthMode(event)" style="color:var(--gold); font-weight:600;">Daftar Sekarang</a>';
+    }
+}
+
+function showForgotPassword(e) {
+    e.preventDefault();
+    const emailEl   = document.getElementById('login-username');
+    const errorEl   = document.getElementById('login-error');
+    const successEl = document.getElementById('login-success');
+    const email     = emailEl ? emailEl.value.trim() : '';
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+    if (!email) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Masukkan email dulu, lalu klik "Lupa password?".';
+        return;
+    }
+    auth.sendPasswordResetEmail(email)
+        .then(() => {
+            successEl.style.display = 'block';
+            successEl.textContent = '✅ Link reset password dikirim ke ' + email + '. Cek inbox / spam.';
+        })
+        .catch(err => {
+            let msg = err.message;
+            if (err.code === 'auth/user-not-found') msg = 'Email ' + email + ' belum terdaftar. Silakan Daftar dulu.';
+            if (err.code === 'auth/invalid-email')  msg = 'Format email tidak valid.';
+            errorEl.style.display = 'block';
+            errorEl.textContent = msg;
+        });
+}
+
+function handleAuth(e) {
+    e.preventDefault();
+    const email   = document.getElementById('login-username').value.trim();
+    const pass    = document.getElementById('login-password').value;
+    const errorEl = document.getElementById('login-error');
+    const btn     = document.getElementById('auth-btn');
+    errorEl.style.display = 'none';
+    if (btn) { btn.disabled = true; btn.textContent = isRegisterMode ? 'Mendaftar...' : 'Masuk...'; }
+
+    if (isRegisterMode) {
+        auth.createUserWithEmailAndPassword(email, pass)
+            .then(cred => {
+                const uid = cred.user.uid;
+                // Save to database so user can actually log in
+                return db.ref('users').once('value').then(snap => {
+                    const users    = snap.val() || {};
+                    const isFirst  = Object.keys(users).length === 0;
+                    const role     = isFirst ? 'maintenance' : 'staff';
+                    return db.ref('users/' + uid).set({ email, role });
+                });
+            })
+            .then(() => {
+                showToast('✅ Registrasi berhasil! Silakan masuk.', 'success');
+                // Switch to login mode
+                isRegisterMode = false;
+                document.getElementById('auth-subtitle').textContent = 'Secure Login';
+                btn.textContent = 'Masuk ke Sistem';
+                document.getElementById('auth-toggle-text').innerHTML = 'Belum punya akun? <a href="#" onclick="toggleAuthMode(event)" style="color:var(--gold);font-weight:600;">Daftar Sekarang</a>';
+            })
+            .catch(err => {
+                let msg = err.message;
+                if (err.code === 'auth/email-already-in-use') msg = 'Email sudah terdaftar. Silakan masuk.';
+                if (err.code === 'auth/weak-password')        msg = 'Password minimal 6 karakter.';
+                if (err.code === 'auth/invalid-email')        msg = 'Format email tidak valid.';
+                errorEl.style.display = 'block';
+                errorEl.textContent = msg;
+            })
+            .finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Daftar Akun Baru'; } });
+    } else {
+        auth.signInWithEmailAndPassword(email, pass)
+            .catch(err => {
+                let msg = err.message;
+                if (err.code === 'auth/user-not-found')   msg = 'Email tidak terdaftar.';
+                if (err.code === 'auth/wrong-password')   msg = 'Password salah. Coba lagi.';
+                if (err.code === 'auth/invalid-email')    msg = 'Format email tidak valid.';
+                if (err.code === 'auth/too-many-requests') msg = 'Terlalu banyak percobaan. Coba beberapa saat lagi.';
+                if (err.code === 'auth/invalid-credential') msg = 'Email atau password salah.';
+                errorEl.style.display = 'block';
+                errorEl.textContent   = msg;
+            })
+            .finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Masuk ke Sistem'; } });
+    }
+}
+
+function addUser(e) {
+    e.preventDefault();
+    if (currentUser.role !== 'admin' && currentUser.role !== 'maintenance') {
+        showToast('Hanya Admin/Maintenance yang bisa tambah user!', 'error'); return;
+    }
+    const email = document.getElementById('new-user-name').value.trim();
+    const pass  = document.getElementById('new-user-pass').value;
+    const role  = document.getElementById('new-user-role').value;
+    const addBtn = e.target.querySelector('button[type="submit"]');
+    if (addBtn) { addBtn.disabled = true; addBtn.textContent = 'Memproses...'; }
+
+    // Pakai secondary app agar current user tidak ter-logout
+    let secondaryApp;
+    try {
+        secondaryApp = firebase.app('secondary');
+    } catch(ex) {
+        secondaryApp = firebase.initializeApp(firebaseConfig, 'secondary');
+    }
+    const secondaryAuth = secondaryApp.auth();
+
+    secondaryAuth.createUserWithEmailAndPassword(email, pass)
+        .then(cred => {
+            const uid = cred.user.uid;
+            return db.ref('users/' + uid).set({ email, role })
+                .then(() => secondaryAuth.signOut());
+        })
+        .then(() => {
+            showToast(`✅ Akun ${email} berhasil dibuat sebagai ${role}!`, 'success');
+            e.target.reset();
+            renderSettings();
+        })
+        .catch(err => {
+            let msg = err.message;
+            if (err.code === 'auth/email-already-in-use') msg = 'Email sudah terdaftar!';
+            if (err.code === 'auth/weak-password') msg = 'Password minimal 6 karakter!';
+            if (err.code === 'auth/invalid-email') msg = 'Format email tidak valid!';
+            showToast('❌ ' + msg, 'error');
+        })
+        .finally(() => {
+            if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Buat Akun'; }
+        });
+}
+
+function deleteUser(uid) {
+    if (confirm('Hapus akses user ini dari database?')) {
+        db.ref('users/' + uid).remove().then(() => { showToast('Akses user dihapus', 'success'); renderSettings(); });
+    }
+}
+
+function updateAccessConfig(type, value) {
+    if (currentUser.role !== 'maintenance') { showToast('Hanya Maintenance yang bisa ubah ini!', 'error'); renderSettings(); return; }
+    db.ref('config/access/' + type).set(value).then(() => { showToast('Hak akses diperbarui', 'success'); });
+}
+
+// ====================== DASHBOARD ======================
+let warningPanelOpen = false;
+function toggleWarningPanel() {
+  warningPanelOpen = !warningPanelOpen;
+  document.getElementById('warning-panel').style.display = warningPanelOpen ? 'block' : 'none';
+}
+// Close panel when clicking outside
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('warning-panel');
+  const bell  = document.getElementById('warning-bell');
+  if (warningPanelOpen && panel && !panel.contains(e.target) && e.target !== bell && !bell.contains(e.target)) {
+    warningPanelOpen = false;
+    panel.style.display = 'none';
+  }
+});
+
+function getUpcomingWarnings() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const warnings = [];
+  bookings.forEach(b => {
+    if (b.status === 'cancelled') return;
+    const checkin  = new Date(b.checkin  + 'T00:00:00');
+    const checkout = new Date(b.checkout + 'T00:00:00');
+    const daysToCheckin  = Math.round((checkin  - today) / 86400000);
+    const daysToCheckout = Math.round((checkout - today) / 86400000);
+
+    if (daysToCheckin >= 0 && daysToCheckin <= 7) {
+      let urgency = daysToCheckin === 0 ? 'today' : daysToCheckin <= 2 ? 'urgent' : 'soon';
+      warnings.push({ booking: b, type: 'checkin', days: daysToCheckin, urgency });
+    }
+    if (daysToCheckout >= 0 && daysToCheckout <= 3 && b.status === 'checkin') {
+      let urgency = daysToCheckout === 0 ? 'today' : 'urgent';
+      warnings.push({ booking: b, type: 'checkout', days: daysToCheckout, urgency });
+    }
+  });
+  warnings.sort((a, b) => a.days - b.days);
+  return warnings;
+}
+
+function renderWarnings() {
+  const warnings = getUpcomingWarnings();
+  const badge = document.getElementById('warning-badge');
+  const panelBody = document.getElementById('warning-panel-body');
+  const dashWarn = document.getElementById('dashboard-warnings');
+
+  // Update badge
+  if (badge) {
+    if (warnings.length > 0) {
+      badge.style.display = 'flex';
+      badge.textContent = warnings.length > 9 ? '9+' : warnings.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  const urgencyConfig = {
+    today:  { bg: '#FFF3CD', border: '#F0AD4E', icon: '🔴', label: 'HARI INI' },
+    urgent: { bg: '#FADBD8', border: '#C0392B', icon: '🟠', label: 'SEGERA' },
+    soon:   { bg: '#D6EAF8', border: '#1F618D', icon: '🔵', label: 'MENDATANG' },
+  };
+
+  const cardHtml = (w) => {
+    const cfg = urgencyConfig[w.urgency];
+    const actionLabel = w.type === 'checkin' ? 'Check-in' : 'Check-out';
+    const dayLabel = w.days === 0 ? 'Hari ini' : w.days === 1 ? 'Besok' : `${w.days} hari lagi`;
+    return `
+      <div onclick="showDetail('${w.booking.id}')" style="background:${cfg.bg};border-left:4px solid ${cfg.border};border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <span style="font-size:13px;font-weight:700;color:#333;">${cfg.icon} ${w.booking.name}</span>
+          <span style="font-size:10px;font-weight:700;color:${cfg.border};background:white;padding:2px 8px;border-radius:10px;border:1px solid ${cfg.border};">${cfg.label}</span>
+        </div>
+        <div style="font-size:12px;color:#555;display:flex;flex-wrap:wrap;gap:8px;">
+          <span>📅 ${actionLabel}: <strong>${dayLabel}</strong></span>
+          ${w.booking.rooms && w.booking.rooms.length ? `<span>🛏️ ${w.booking.rooms[0].label}</span>` : ''}
+          ${w.booking.aula  && w.booking.aula.length  ? `<span>🏛️ ${w.booking.aula[0]}</span>` : ''}
+          ${w.booking.sales ? `<span>👤 ${w.booking.sales}</span>` : ''}
+        </div>
+      </div>`;
+  };
+
+  // Panel content
+  if (panelBody) {
+    if (warnings.length === 0) {
+      panelBody.innerHTML = '<p style="text-align:center;padding:24px;color:var(--text-muted);">✅ Tidak ada jadwal mendesak dalam 7 hari ke depan.</p>';
+    } else {
+      const todayW  = warnings.filter(w => w.urgency === 'today');
+      const urgentW = warnings.filter(w => w.urgency === 'urgent');
+      const soonW   = warnings.filter(w => w.urgency === 'soon');
+      let html = '';
+      if (todayW.length)  html += `<div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Hari Ini</div>` + todayW.map(cardHtml).join('');
+      if (urgentW.length) html += `<div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin:8px 0 8px;">1–2 Hari Lagi</div>` + urgentW.map(cardHtml).join('');
+      if (soonW.length)   html += `<div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px;margin:8px 0 8px;">3–7 Hari Lagi</div>` + soonW.map(cardHtml).join('');
+      panelBody.innerHTML = html;
+    }
+  }
+
+  // Dashboard warning banner
+  if (dashWarn) {
+    const todayAndUrgent = warnings.filter(w => w.urgency === 'today' || w.urgency === 'urgent');
+    if (todayAndUrgent.length === 0) { dashWarn.innerHTML = ''; return; }
+    dashWarn.innerHTML = `
+      <div style="background:linear-gradient(135deg,#FFF3CD,#FDEBD0);border:1.5px solid #F0AD4E;border-radius:12px;padding:16px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <span style="font-size:15px;font-weight:700;color:#7D6608;">⚠️ ${todayAndUrgent.length} Reservasi Memerlukan Perhatian</span>
+          <button onclick="toggleWarningPanel()" style="background:rgba(0,0,0,0.08);border:none;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;color:#555;">Lihat Semua 🔔</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${todayAndUrgent.slice(0,4).map(w => {
+            const dayLabel = w.days === 0 ? 'Hari ini' : w.days === 1 ? 'Besok' : `${w.days} hari lagi`;
+            const color = w.urgency === 'today' ? '#922B21' : '#784212';
+            return `<div onclick="showDetail('${w.booking.id}')" style="background:white;border-radius:8px;padding:8px 12px;border:1px solid rgba(0,0,0,0.08);cursor:pointer;flex:1;min-width:180px;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
+              <div style="font-weight:600;font-size:13px;color:${color};">${w.type === 'checkin' ? '📥' : '📤'} ${w.booking.name}</div>
+              <div style="font-size:11px;color:#777;margin-top:3px;">${w.type === 'checkin' ? 'Check-in' : 'Check-out'}: <strong>${dayLabel}</strong></div>
+            </div>`;
+          }).join('')}
+          ${todayAndUrgent.length > 4 ? `<div style="display:flex;align-items:center;padding:8px 12px;font-size:12px;color:#888;">+${todayAndUrgent.length - 4} lainnya</div>` : ''}
+        </div>
+      </div>`;
+  }
+}
+
+function updateDashboard() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayBookings  = bookings.filter(b => b.checkin === today && b.status !== 'cancelled');
+  const activeBookings = bookings.filter(b => b.status === 'checkin');
+  const hallBookings   = bookings.filter(b => b.aula && b.aula.length > 0 && b.status !== 'cancelled');
+  // Guests currently staying: status checkin AND checkin <= today AND checkout > today
+  const stayingNow = bookings.filter(b => b.status === 'checkin' && b.checkin <= today && b.checkout > today)
+    .sort((a, b) => a.checkout.localeCompare(b.checkout)); // soonest checkout first
+
+  document.getElementById('stat-total').textContent = bookings.filter(b => b.status !== 'cancelled').length;
+  document.getElementById('stat-checkin').textContent = todayBookings.length;
+  document.getElementById('stat-rooms').textContent = activeBookings.length;
+  document.getElementById('stat-halls').textContent = hallBookings.length;
+
+  // ---- STAYING NOW CARDS ----
+  const stayingSection = document.getElementById('staying-section');
+  const stayingCards   = document.getElementById('staying-cards');
+  const stayingBadge   = document.getElementById('staying-count-badge');
+  if (stayingNow.length === 0) {
+    stayingSection.style.display = 'none';
+  } else {
+    stayingSection.style.display = 'block';
+    stayingBadge.textContent = stayingNow.length + ' tamu';
+    stayingCards.innerHTML = stayingNow.map(b => {
+      const checkoutDate  = new Date(b.checkout + 'T00:00:00');
+      const todayDate     = new Date(today + 'T00:00:00');
+      const daysLeft      = Math.round((checkoutDate - todayDate) / 86400000);
+      const checkinDate   = new Date(b.checkin + 'T00:00:00');
+      const totalNights   = Math.round((checkoutDate - checkinDate) / 86400000);
+      const nightsStayed  = Math.round((todayDate - checkinDate) / 86400000);
+      const progressPct   = totalNights ? Math.min(100, Math.round((nightsStayed / totalNights) * 100)) : 100;
+
+      const rooms  = (b.rooms || []);
+      const aulas  = (b.aula  || []);
+      let locLine  = '-';
+      let locIcon  = '🛏️';
+      if (rooms.length > 0) {
+        const bldKey  = rooms[0].id ? rooms[0].id.split('_')[0] : '';
+        const bldName = getBuildingName(bldKey) || 'Kamar';
+        locLine = rooms.length === 1 ? rooms[0].label : bldName + ' · ' + rooms.length + ' kamar';
+      } else if (aulas.length > 0) {
+        locIcon = '🏛️';
+        locLine = aulas.length === 1 ? aulas[0] : aulas.slice(0,2).join(', ') + (aulas.length > 2 ? ' +' + (aulas.length - 2) : '');
+      }
+
+      const urgentCheckout = daysLeft <= 1;
+      const borderColor    = urgentCheckout ? 'var(--warning)' : '#2E7D52';
+      const bgColor        = urgentCheckout ? '#FFFDF5' : '#F6FBF8';
+      const barColor       = urgentCheckout ? 'var(--warning)' : '#2E7D52';
+      const daysLabel      = daysLeft === 0 ? '⚠️ Check-out Hari Ini' : daysLeft === 1 ? '⚠️ Besok Check-out' : daysLeft + ' malam tersisa';
+      const daysColor      = urgentCheckout ? 'var(--warning)' : 'var(--success)';
+
+      return `<div onclick="showDetail('${b.id}')" style="background:${bgColor};border:1.5px solid ${borderColor};border-radius:12px;padding:16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.1)'"
+        onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div>
+            <div style="font-weight:700;font-size:15px;color:var(--dark);">${b.name}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${locIcon} ${locLine}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:11px;font-weight:700;color:${daysColor};">${daysLabel}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">s/d ${formatDate(b.checkout)}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;font-size:12px;color:var(--text-muted);margin-bottom:10px;flex-wrap:wrap;">
+          <span>👥 ${b.guestCount || '-'} orang</span>
+          ${b.sales ? `<span>👤 ${b.sales}</span>` : ''}
+          <span>📅 Masuk ${formatDate(b.checkin)}</span>
+        </div>
+        <div style="margin-bottom:6px;display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);">
+          <span>Malam ke-${nightsStayed + 1} dari ${totalNights}</span>
+          <span>${progressPct}%</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.08);border-radius:4px;height:5px;overflow:hidden;">
+          <div style="height:100%;width:${progressPct}%;background:${barColor};border-radius:4px;transition:width 0.6s;"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ---- RECENT BOOKINGS ----
+  const recentEl = document.getElementById('recent-bookings');
+  if (bookings.length === 0) {
+    recentEl.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px">Belum ada booking</td></tr>';
+  } else {
+    recentEl.innerHTML = [...bookings].reverse().slice(0, 5).map(b => `
+      <tr onclick="showDetail('${b.id}')" style="cursor:pointer">
+        <td><strong>${b.name}</strong></td>
+        <td><span style="font-size:12px; color:var(--info); font-weight:500;">👤 ${b.sales || '-'}</span></td>
+        <td>${getBuildingName(b.buildingType || (b.rooms && b.rooms[0] ? b.rooms[0].id.split('_')[0] : ''))}</td>
+        <td>${formatDate(b.checkin)}</td>
+        <td>${getStatusBadge(b.status)}</td>
+      </tr>`).join('');
+  }
+
+  // ---- CHECK-IN HARI INI ----
+  const ciEl = document.getElementById('today-checkin');
+  if (todayBookings.length === 0) {
+    ciEl.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px">Tidak ada tamu check-in hari ini</td></tr>';
+  } else {
+    ciEl.innerHTML = todayBookings.map(b => `
+      <tr onclick="showDetail('${b.id}')" style="cursor:pointer">
+        <td><strong>${b.name}</strong></td>
+        <td><span style="font-size:11px; color:var(--info);">👤 ${b.sales || '-'}</span></td>
+        <td>${(b.rooms||[])[0]?.label||'-'}</td>
+        <td>${b.guestCount} orang</td>
+        <td>${getStatusBadge(b.status)}</td>
+      </tr>`).join('');
+  }
+  renderWarnings();
+}
+
+// ====================== RENDER HELPERS ======================
+function renderBookingTable(list) {
+  const tbody = document.getElementById('booking-table');
+  const data = list || bookings;
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">Belum ada data booking.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((b, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>
+        <div style="font-weight:600; color:var(--dark);">${b.name}</div>
+        ${b.company ? `<div style="font-size:11px; color:var(--text-muted);">🏢 ${b.company}</div>` : ''}
+        <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">👤 ${b.createdBy || '-'}</div>
+      </td>
+      <td><span class="badge badge-gray">${b.guestCount} Orang</span></td>
+      <td>
+        <div style="max-width:200px; font-size:13px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(b.rooms||[]).map(r=>r.label).join(', ')}">
+            ${(b.rooms||[]).map(r=>r.label).join(', ') || '-'}
+        </div>
+      </td>
+      <td>${formatDate(b.checkin)}</td>
+      <td>${formatDate(b.checkout)}</td>
+      <td>${getStatusBadge(b.status)}</td>
+      <td>
+        <div style="display:flex; gap:5px; align-items:center;">
+            <button class="btn btn-outline btn-sm" onclick="showDetail('${b.id}')" title="Lihat Detail">👁️</button>
+            ${canEdit(b) ? `<button class="btn btn-outline btn-sm" onclick="editBooking('${b.id}')" title="Edit">✏️</button>` : `<span title="Tidak punya akses edit" style="font-size:16px;opacity:0.3;padding:0 4px;cursor:default;">🔒</span>`}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderGuestTable() {
+  const tbody = document.getElementById('guest-table');
+  const guests = {};
+  bookings.forEach(b => { if(!guests[b.name]) guests[b.name] = { name:b.name, count:b.guestCount, phone:b.phone, bookings:0 }; guests[b.name].bookings++; });
+  tbody.innerHTML = Object.values(guests).map(g => `<tr><td>${g.name}</td><td>${g.count}</td><td>${g.phone||'-'}</td><td>${g.bookings}</td><td><button class="btn btn-outline btn-sm" onclick="showDetailByGuest('${g.name}')">Lihat</button></td></tr>`).join('');
+}
+
+function renderOrdersTable() {
+  const tbody    = document.getElementById('orders-table');
+  const q        = (document.getElementById('search-orders')?.value || '').toLowerCase();
+  const statusF  = document.getElementById('filter-orders-status')?.value || '';
+  const dateF    = document.getElementById('filter-orders-date')?.value  || '';
+  const today    = new Date().toISOString().split('T')[0];
+  const weekEnd  = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
+  const monthEnd = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).toISOString().split('T')[0];
+
+  let data = bookings.filter(b =>
+    b.status !== 'cancelled' &&
+    ((b.services && b.services.length) || b.wishes || (b.catering && b.catering.package))
+  );
+
+  if (q)       data = data.filter(b => b.name.toLowerCase().includes(q) || (b.rooms||[]).some(r=>r.label.toLowerCase().includes(q)));
+  if (statusF) data = data.filter(b => b.status === statusF);
+  if (dateF === 'today') data = data.filter(b => b.checkin === today);
+  if (dateF === 'week')  data = data.filter(b => b.checkin >= today && b.checkin <= weekEnd);
+  if (dateF === 'month') data = data.filter(b => b.checkin >= today && b.checkin <= monthEnd);
+
+  // Sort by checkin ascending
+  data.sort((a,b) => a.checkin.localeCompare(b.checkin));
+
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">Tidak ada pesanan ditemukan.</td></tr>';
+    return;
+  }
+
+  // Helper: compact room summary
+  function compactRooms(b) {
+    const rooms = b.rooms || [];
+    const aulas = b.aula  || [];
+    if (!rooms.length && !aulas.length) return '-';
+    const groups = {};
+    rooms.forEach(r => {
+      const parts = r.id.split('_');
+      const bk = parts[0], fl = parts[1] || '';
+      const key = bk + '|' + fl;
+      if (!groups[key]) groups[key] = { bk, fl, n: 0 };
+      groups[key].n++;
+    });
+    const roomChips = Object.values(groups).map(g => {
+      const bldShort = getBuildingName(g.bk).replace('Gedung ','').replace('Cottage ','Ctg.').replace('Bungalow ','Bgw.');
+      const flShort  = g.fl.replace('Lantai ','Lt.').replace('Unit','Unit').replace('VIP','VIP');
+      return `<span style="display:inline-block;background:var(--info-bg);color:var(--info);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:600;margin:1px;">${bldShort} ${flShort} · ${g.n}</span>`;
+    }).join('');
+    const aulaChips = aulas.map(a =>
+      `<span style="display:inline-block;background:var(--success-bg);color:var(--success);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:600;margin:1px;">🏛️ ${a}</span>`
+    ).join('');
+    return roomChips + aulaChips;
+  }
+
+  // Helper: catering menu chips — sorted by order if slots exist
+  function cateringMeals(b) {
+    if (!b.catering || !b.catering.package) return '-';
+    const mealMap = { 'Makan Pagi':'M.Pagi', 'Makan Siang':'M.Siang', 'Makan Malam':'M.Malam' };
+    let slots = [];
+    if (b.catering.slots && b.catering.slots.length) {
+      slots = [...b.catering.slots].sort((a,z) => a.order - z.order).filter(s => s.type === 'meal');
+    } else if (b.catering.meals && b.catering.meals.length) {
+      const times = b.catering.mealTimes || [];
+      slots = b.catering.meals.map((m,i) => ({ label: times[i]||`Makan ${i+1}`, items:[m] }));
+    }
+    if (!slots.length) return `<span style="font-size:11px;color:var(--text-muted);">${b.catering.package}</span>`;
+    return slots.map(s => {
+      const short = mealMap[s.label] || s.label;
+      const menu  = (s.items||[]).filter(Boolean).join(' + ');
+      const color = s.label.includes('Pagi') ? '#E67E22' : s.label.includes('Siang') ? '#F39C12' : '#8E44AD';
+      return `<div style="display:inline-flex;align-items:center;gap:4px;margin:2px;">
+        <span style="background:${color}22;color:${color};border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700;">${short}</span>
+        ${menu ? `<span style="font-size:11px;color:var(--text-muted);">${menu}</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function cateringSnacks(b) {
+    if (!b.catering || !b.catering.package) return '-';
+    let slots = [];
+    if (b.catering.slots && b.catering.slots.length) {
+      slots = [...b.catering.slots].sort((a,z) => a.order - z.order).filter(s => s.type === 'snack');
+    } else if (b.catering.snacks && b.catering.snacks.length) {
+      const times = b.catering.snackTimes || [];
+      slots = b.catering.snacks.map((s,i) => ({ label: times[i]||`Snack ${i+1}`, items:[s] }));
+    }
+    if (!slots.length) return '-';
+    return slots.map((s,i) => {
+      const short = s.label || `Snack ${i+1}`;
+      const menu  = (s.items||[]).filter(Boolean).join(' + ');
+      return `<div style="display:inline-flex;align-items:center;gap:4px;margin:2px;">
+        <span style="background:var(--warning-bg);color:var(--warning);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700;">${short}</span>
+        ${menu ? `<span style="font-size:11px;color:var(--text-muted);">${menu}</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  tbody.innerHTML = data.map(b => `
+    <tr onclick="showDetail('${b.id}')" style="cursor:pointer;">
+      <td>
+        <div style="font-weight:600;font-size:14px;color:var(--dark);margin-bottom:4px;">${b.name}</div>
+        <div style="line-height:1.8;">${compactRooms(b)}</div>
+        ${b.guestCount ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">👥 ${b.guestCount} orang</div>` : ''}
+      </td>
+      <td>
+        ${(b.services||[]).length ? b.services.map(s =>
+          `<span style="display:inline-block;background:var(--cream2);color:var(--text);border-radius:10px;padding:2px 8px;font-size:11px;margin:1px;">${s}</span>`
+        ).join('') : '<span style="color:var(--text-muted);font-size:12px;">-</span>'}
+      </td>
+      <td>${cateringMeals(b)}</td>
+      <td>${cateringSnacks(b)}</td>
+      <td style="font-size:13px;color:var(--text-muted);max-width:160px;">${b.wishes || '<span style="color:var(--cream2);">-</span>'}</td>
+      <td style="font-size:13px;white-space:nowrap;">${formatDate(b.checkin)}</td>
+      <td>${getStatusBadge(b.status)}</td>
+    </tr>`).join('');
+}
+
+function renderReport() {
+  const table = document.getElementById('report-table');
+  const stats = {};
+  Object.keys(BUILDINGS).forEach(k => stats[k] = { total:0, occupied:0 });
+  bookings.forEach(b => {
+    if (b.status === 'checkin' && b.rooms) {
+      b.rooms.forEach(r => { const bid = r.id.split('_')[0]; if(stats[bid]) stats[bid].occupied++; });
+    }
+  });
+  table.innerHTML = Object.entries(BUILDINGS).map(([id, bld]) => {
+    const total = bld.floors.reduce((acc, f) => acc + f.rooms + (f.vip||0), 0);
+    const occ = stats[id].occupied;
+    const perc = total ? Math.round((occ/total)*100) : 0;
+    return `<tr><td>${bld.name}</td><td>${total}</td><td>${occ}</td><td>${total-occ}</td><td>${perc}%</td></tr>`;
+  }).join('');
+}
+
+// ====================== PERMISSION HELPERS ======================
+function isOwner(b) {
+  if (!currentUser || !b) return false;
+  return b.createdBy === currentUser.username;
+}
+function isSuperUser() {
+  return currentUser && (currentUser.role === 'admin' || currentUser.role === 'maintenance');
+}
+function isDelegated(b) {
+  if (!currentUser || !b || !b.allowedEditors) return false;
+  return (b.allowedEditors || []).includes(currentUser.username);
+}
+function canEdit(b) {
+  return isSuperUser() || isOwner(b) || isDelegated(b);
+}
+function canDelete(b) {
+  return isSuperUser() || isOwner(b);
+}
+
+// ====================== MODALS & ACTIONS ======================
+function openNewBooking() {
+  editingId = null;
+  document.getElementById('booking-form').reset();
+  document.getElementById('f-ktp-url').value = '';
+  document.getElementById('ktp-preview').innerHTML = '';
+  
+  // Reset Advance
+  document.getElementById('f-advance-mode').checked = false;
+  toggleAdvanceMode(false);
+  document.getElementById('f-catering-package').value = '';
+  renderCateringSelectors('');
+  document.getElementById('f-menu-options').value = '';
+  document.getElementById('dynamic-file-list').innerHTML = '';
+
+  // Reset payment records
+  document.getElementById('payment-records').innerHTML = '';
+  document.getElementById('payment-summary').style.display = 'none';
+  
+  tempSelectedRooms = [];
+  confirmRoomSelection();
+  document.getElementById('booking-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('booking-modal').classList.remove('open'); }
+function closeDetailModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+function showDetail(id) {
+  const b = bookings.find(x => x.id === id);
+  if (!b) return;
+  const body = document.getElementById('detail-body');
+  
+  // Hitung durasi menginap
+  const checkin = new Date(b.checkin);
+  const checkout = new Date(b.checkout);
+  const diffTime = Math.abs(checkout - checkin);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // Hitung Progress Kelengkapan
+  let totalFields = 6; // name, phone, address, sales, checkin, checkout
+  let filledFields = 0;
+  if (b.name) filledFields++;
+  if (b.phone) filledFields++;
+  if (b.address) filledFields++;
+  if (b.sales) filledFields++;
+  if (b.checkin) filledFields++;
+  if (b.checkout) filledFields++;
+
+  // Cek Pembayaran
+  if (b.totalPayment > 0) {
+      totalFields++;
+      if (b.paidAmount >= b.totalPayment) filledFields++;
+      else if (b.paidAmount > 0) filledFields += 0.5; // Setengah poin untuk DP
+  }
+
+  // Cek Advance Mode
+  if (b.advanceMode) {
+      totalFields += 2; // Katering & Dokumen
+      if (b.catering && b.catering.package) filledFields++;
+      if (b.advanceFiles && b.advanceFiles.length > 0) filledFields++;
+  }
+
+  const progress = Math.min(100, (filledFields / totalFields) * 100);
+
+  body.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid var(--cream2); padding-bottom:15px;">
+        <div>
+            <h3 style="font-size:22px; font-family:'Playfair Display', serif; color:var(--dark);">${b.name}</h3>
+            ${b.company ? `<p style="color:var(--text-muted); font-size:14px;">🏢 ${b.company}</p>` : ''}
+            <p style="color:var(--info); font-size:13px; margin-top:4px;">💼 Sales: <strong>${b.sales || '-'}</strong></p>
+        </div>
+        <div>
+            ${getStatusBadge(b.status)}
+            <div style="margin-top:8px; font-size:12px; color:var(--text-muted); text-align:right;">
+                ID: #${id.slice(-6).toUpperCase()}
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+        <label style="font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; display:block;">Progress Kelengkapan</label>
+        <div class="progress-bar-container" style="background:var(--cream2); border-radius:20px; height:12px; overflow:hidden;">
+            <div class="progress-bar" style="width:${progress}%; background: ${progress < 100 ? 'var(--gold)' : 'var(--success)'}; height:100%; border-radius:20px; transition:width 0.5s ease;"></div>
+        </div>
+        <div style="font-size:11px; font-weight:600; color: ${progress < 100 ? 'var(--gold-dark)' : 'var(--success)'}; text-align:right; margin-top:4px;">${Math.round(progress)}% Lengkap</div>
+    </div>
+    
+    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px; margin-bottom:20px;">
+        <div style="background:var(--cream); padding:12px; border-radius:10px;">
+            <label style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Check-in</label>
+            <span style="font-weight:600; font-size:15px;">📅 ${formatDate(b.checkin)}</span>
+        </div>
+        <div style="background:var(--cream); padding:12px; border-radius:10px;">
+            <label style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Check-out</label>
+            <span style="font-weight:600; font-size:15px;">📅 ${formatDate(b.checkout)}</span>
+        </div>
+        <div style="background:var(--cream); padding:12px; border-radius:10px;">
+            <label style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Jumlah Tamu</label>
+            <span style="font-weight:600; font-size:15px;">👥 ${b.guestCount} Orang</span>
+        </div>
+        <div style="background:var(--cream); padding:12px; border-radius:10px;">
+            <label style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Durasi</label>
+            <span style="font-weight:600; font-size:15px;">🌙 ${diffDays} Malam</span>
+        </div>
+    </div>
+
+    <div style="margin-bottom:20px; display:grid; grid-template-columns: 1fr; gap:12px;">
+        <div style="background:var(--cream); padding:12px; border-radius:10px;">
+            <label style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Kontak Tamu</label>
+            <span style="font-weight:600; font-size:14px;">📞 ${b.phone || '-'}</span>
+        </div>
+        <div style="background:var(--cream); padding:12px; border-radius:10px;">
+            <label style="display:block; font-size:11px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Alamat Tamu</label>
+            <span style="font-weight:600; font-size:14px;">🏠 ${b.address || '-'}</span>
+        </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px;">
+          <div style="background:var(--cream);padding:12px;border-radius:10px;border-left:4px solid var(--info);">
+            <label style="display:block;font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Total Biaya</label>
+            <span style="font-weight:700;font-size:16px;color:var(--dark);">${formatRp(b.totalPayment)}</span>
+          </div>
+          <div style="background:var(--cream);padding:12px;border-radius:10px;border-left:4px solid var(--success);">
+            <label style="display:block;font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Sudah Dibayar</label>
+            <span style="font-weight:700;font-size:16px;color:var(--success);">${formatRp(b.paidAmount)}</span>
+          </div>
+          <div style="background:var(--cream);padding:12px;border-radius:10px;border-left:4px solid ${(b.totalPayment-(b.paidAmount||0))<=0?'var(--success)':'var(--danger)'};">
+            <label style="display:block;font-size:11px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Sisa</label>
+            <span style="font-weight:700;font-size:16px;color:${(b.totalPayment-(b.paidAmount||0))<=0?'var(--success)':'var(--danger)'};">
+              ${(b.totalPayment-(b.paidAmount||0))<=0 ? '✅ LUNAS' : formatRp(b.totalPayment-(b.paidAmount||0))}
+            </span>
+          </div>
+        </div>
+        ${b.totalPayment > 0 ? `
+        <div style="background:rgba(0,0,0,0.06);border-radius:4px;height:7px;overflow:hidden;margin-bottom:14px;">
+          <div style="height:100%;width:${b.totalPayment>0?Math.min(100,Math.round(((b.paidAmount||0)/b.totalPayment)*100)):0}%;background:${((b.paidAmount||0)>=b.totalPayment)?'var(--success)':'var(--gold)'};border-radius:4px;"></div>
+        </div>` : ''}
+        ${b.payments && b.payments.length ? `
+        <div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">📋 Riwayat Pembayaran</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${b.payments.map((p,i) => `
+            <div style="background:var(--cream);border-radius:10px;padding:12px 14px;border:1px solid var(--cream2);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${p.imageUrl?'8px':'0'};">
+                <div>
+                  <span style="font-weight:700;font-size:14px;color:var(--success);">${formatRp(p.amount)}</span>
+                  ${p.note ? `<span style="font-size:12px;color:var(--text-muted);margin-left:8px;">• ${p.note}</span>` : ''}
+                </div>
+                <span style="font-size:11px;color:var(--text-muted);">${p.date ? new Date(p.date+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : ''}</span>
+              </div>
+              ${p.imageUrl ? `<img src="${p.imageUrl}" onclick="showPaymentImage(this.src)" style="max-height:100px;border-radius:8px;border:1px solid var(--cream2);cursor:zoom-in;margin-top:4px;" title="Klik untuk perbesar">` : ''}
+            </div>`).join('')}
+        </div>` : ''}
+    </div>
+
+    <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:8px;">Kamar & Ruangan:</label>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            ${(b.rooms || []).map(r => `
+                <span style="background:var(--info-bg); color:var(--info); padding:6px 12px; border-radius:20px; font-size:13px; font-weight:500; border:1px solid rgba(31,97,141,0.1);">
+                    ${r.label}
+                </span>
+            `).join('') || '<span style="color:var(--text-muted);">Tidak ada kamar dipilih</span>'}
+        </div>
+    </div>
+
+    ${b.ktpUrl ? `
+    <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:8px;">Dokumen KTP/ID:</label>
+        <div style="border:1px solid var(--cream2); border-radius:10px; padding:10px; text-align:center;">
+            ${b.ktpUrl.startsWith('data:image') 
+                ? `<img src="${b.ktpUrl}" style="max-width:100%; max-height:200px; border-radius:5px;">` 
+                : `<a href="${b.ktpUrl}" target="_blank" class="btn btn-outline btn-sm">📄 Lihat Dokumen</a>`}
+        </div>
+    </div>` : ''}
+
+    ${b.advanceMode ? `
+    <div style="margin-top:24px; padding-top:20px; border-top:2px dashed var(--gold-light);">
+        <h4 style="color:var(--gold-dark); margin-bottom:15px; display:flex; align-items:center; gap:8px;">🚀 Fitur Lanjutan (Advance)</h4>
+        
+        ${b.catering && b.catering.package ? `
+        <div style="margin-bottom:15px; background:white; padding:12px; border-radius:10px; border:1px solid var(--cream2);">
+            <label style="display:block; font-size:12px; font-weight:600; color:var(--gold-dark); margin-bottom:10px;">🍱 Paket Katering: ${b.catering.package.toUpperCase()}</label>
+            ${b.catering.slots && b.catering.slots.length ? `
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              ${[...b.catering.slots].sort((a,z) => a.order - z.order).map(s => `
+                <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--cream);border-radius:8px;">
+                  <span style="background:${s.type==='meal'?'var(--gold)':'var(--warning)'};color:white;border-radius:50%;width:20px;height:20px;min-width:20px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-top:1px;">${s.order}</span>
+                  <div>
+                    <div style="font-size:12px;font-weight:700;color:var(--dark);">${s.label}</div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${(s.items||[]).filter(Boolean).join(' · ') || '-'}</div>
+                  </div>
+                </div>`).join('')}
+            </div>` : `
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div><span style="font-size:11px; font-weight:600; color:var(--text-muted);">MENU MAKAN:</span>
+                    <ul style="font-size:12px; margin-top:4px; padding-left:15px;">
+                        ${(b.catering.meals || []).map((m,i) => { const t=(b.catering.mealTimes||[])[i]||''; return `<li>${t?'<strong>'+t+'</strong>: ':''}${m||'-'}</li>`; }).join('')}
+                    </ul>
+                </div>
+                <div><span style="font-size:11px; font-weight:600; color:var(--text-muted);">SNACK:</span>
+                    <ul style="font-size:12px; margin-top:4px; padding-left:15px;">
+                        ${(b.catering.snacks || []).map((s,i) => { const t=(b.catering.snackTimes||[])[i]||''; return `<li>${t?'<strong>'+t+'</strong>: ':''}${s||'-'}</li>`; }).join('')}
+                    </ul>
+                </div>
+            </div>`}
+        </div>` : ''}
+
+        ${b.menuOptions ? `
+        <div style="margin-bottom:15px;">
+            <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:6px;">Pilihan Menu:</label>
+            <div style="background:var(--cream2); padding:12px; border-radius:10px; font-size:13px; line-height:1.5;">
+                ${b.menuOptions.replace(/\n/g, '<br>')}
+            </div>
+        </div>` : ''}
+
+        ${b.advanceFiles && b.advanceFiles.length > 0 ? `
+        <div style="margin-bottom:15px;">
+            <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:8px;">Dokumen Tambahan:</label>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:10px;">
+                ${b.advanceFiles.map(file => `
+                    <div style="background:white; border:1px solid var(--cream2); padding:8px; border-radius:8px; text-align:center;">
+                        <div style="font-size:11px; font-weight:600; margin-bottom:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${file.name}">
+                            ${file.name || 'Dokumen'}
+                        </div>
+                        ${file.url.startsWith('data:image') 
+                            ? `<img src="${file.url}" style="width:100%; height:60px; object-fit:cover; border-radius:4px; margin-bottom:5px;">` 
+                            : `<div style="font-size:24px; margin-bottom:5px;">📄</div>`}
+                        <a href="${file.url}" target="_blank" style="font-size:10px; color:var(--info); text-decoration:none; font-weight:600;">LIHAT FILE</a>
+                    </div>
+                `).join('')}
+            </div>
+        </div>` : ''}
+    </div>` : ''}
+
+    ${b.aula && b.aula.length > 0 ? `
+    <div style="margin-bottom:20px; padding:15px; border:1.5px solid var(--success-bg); background:rgba(46,125,82,0.03); border-radius:12px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--success); margin-bottom:8px;">Detail Sewa Aula:</label>
+        <p style="font-size:14px; margin-bottom:8px;">🏛️ <strong>${b.aula.join(', ')}</strong></p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px;">
+            <div>Kapasitas: ${b.aulaCapacity || '-'}</div>
+            <div>Formasi: ${b.aulaLayout || '-'}</div>
+        </div>
+    </div>` : ''}
+
+    ${b.services && b.services.length > 0 ? `
+    <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:8px;">Layanan Tambahan:</label>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            ${b.services.map(s => `<span class="badge badge-info">${s}</span>`).join('')}
+        </div>
+    </div>` : ''}
+
+    ${b.wishes ? `
+    <div style="margin-bottom:20px;">
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:4px;">Keinginan Khusus:</label>
+        <div style="background:var(--cream2); padding:10px; border-radius:8px; font-size:13px; color:var(--text);">
+            ${b.wishes}
+        </div>
+    </div>` : ''}
+
+    <div style="border-top:1px solid var(--cream2); padding-top:15px; font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between;">
+        <span>🆕 Dibuat: ${b.createdBy || 'System'} (${b.createdAt ? new Date(b.createdAt).toLocaleDateString('id-ID') : '-'})</span>
+        <span>🔄 Diubah: ${b.updatedBy || '-'} (${b.updatedAt ? new Date(b.updatedAt).toLocaleDateString('id-ID') : '-'})</span>
+    </div>
+  `;
+  
+  document.getElementById('edit-booking-btn').onclick = () => editBooking(id);
+  document.getElementById('delete-booking-btn').onclick = () => deleteBooking(id);
+
+  // --- Permission: show/hide edit & delete based on role/ownership ---
+  const editBtn   = document.getElementById('edit-booking-btn');
+  const deleteBtn = document.getElementById('delete-booking-btn');
+
+  if (canEdit(b)) {
+    editBtn.style.display = '';
+    editBtn.title = '';
+  } else {
+    editBtn.style.display = 'none';
+  }
+  if (canDelete(b)) {
+    deleteBtn.style.display = '';
+    deleteBtn.title = '';
+  } else {
+    deleteBtn.style.display = 'none';
+  }
+
+  // --- Delegation panel (only for owner or superuser) ---
+  const delegateZone = document.getElementById('delegate-zone');
+  if (delegateZone) {
+    if (isOwner(b) || isSuperUser()) {
+      const allowed = b.allowedEditors || [];
+      delegateZone.style.display = 'block';
+      delegateZone.innerHTML = `
+        <div style="border-top:1px solid var(--cream2);margin-top:18px;padding-top:16px;">
+          <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px;">🔑 Izin Edit untuk Akun Lain</div>
+          <div id="delegate-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            ${allowed.length === 0 
+              ? `<span style="font-size:12px;color:var(--text-muted);font-style:italic;">Belum ada akun yang diberi akses</span>` 
+              : allowed.map(u => `
+                  <div style="display:flex;align-items:center;gap:6px;background:var(--info-bg);color:var(--info);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;">
+                    👤 ${u}
+                    <button onclick="revokeAccess('${id}','${u}')" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px;line-height:1;padding:0 2px;" title="Cabut akses">×</button>
+                  </div>`).join('')}
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="delegate-select" style="flex:1;min-width:180px;border:1.5px solid var(--cream2);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--dark);background:white;outline:none;">
+              <option value="">-- Pilih akun --</option>
+            </select>
+            <button onclick="grantAccess('${id}')" class="btn btn-primary btn-sm" style="white-space:nowrap;">+ Beri Akses Edit</button>
+          </div>
+        </div>`;
+      // Populate user list from Firebase
+      db.ref('users').once('value', snap => {
+        const users = snap.val() || {};
+        const sel = document.getElementById('delegate-select');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">-- Pilih akun --</option>';
+        Object.values(users).forEach(u => {
+          if (u.email !== currentUser.username && !allowed.includes(u.email)) {
+            const opt = document.createElement('option');
+            opt.value = u.email; opt.textContent = u.email;
+            sel.appendChild(opt);
+          }
+        });
+      });
+    } else {
+      delegateZone.style.display = 'none';
+      delegateZone.innerHTML = '';
+    }
+  }
+
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function saveBooking(e) {
+  e.preventDefault();
+  const existingData = editingId ? bookings.find(b => b.id === editingId) : {};
+  
+  // Collect dynamic files
+  const advanceMode = document.getElementById('f-advance-mode').checked;
+  const collectedFiles = [];
+  if (advanceMode) {
+    const fileItems = document.querySelectorAll('.file-upload-item');
+    fileItems.forEach(item => {
+      const id = item.id.replace('file-item-', '');
+      const name = document.getElementById(`file-name-${id}`).value;
+      const url = document.getElementById(`file-url-${id}`).value;
+      if (name || url) {
+        collectedFiles.push({ name, url });
+      }
+    });
+  }
+
+  const data = {
+    name: document.getElementById('f-name').value,
+    guestCount: parseInt(document.getElementById('f-guests').value),
+    phone: document.getElementById('f-phone').value,
+    address: document.getElementById('f-address').value,
+    sales: document.getElementById('f-sales').value,
+    ktpUrl: document.getElementById('f-ktp-url').value,
+    company: document.getElementById('f-company').value,
+    reservationType: document.getElementById('f-reservation-type').value,
+    rooms: tempSelectedRooms,
+    checkin: document.getElementById('f-checkin').value,
+    checkout: document.getElementById('f-checkout').value,
+    wishes: document.getElementById('f-wishes').value,
+    aula: [...document.querySelectorAll('input[name="aula"]:checked')].map(c => c.value),
+    aulaCapacity: document.getElementById('f-aula-capacity').value,
+    aulaLayout: document.getElementById('f-aula-layout').value,
+    aulaNotes: document.getElementById('f-aula-notes').value,
+    services: [...document.querySelectorAll('input[name="service"]:checked')].map(c => c.value),
+    
+    // Status & Payment
+    status: document.getElementById('f-status').value,
+    totalPayment: parseRp(document.getElementById('f-total-payment').value),
+    paidAmount:   getPaymentRecords().reduce((s,r) => s + r.amount, 0),
+    payments:     getPaymentRecords(),
+    
+    // Advance Features
+    advanceMode: advanceMode,
+    catering: advanceMode ? {
+      package: document.getElementById('f-catering-package').value,
+      slots: [...document.querySelectorAll('#catering-items-selector .catering-slot')].map(slot => ({
+        type:  slot.dataset.type,
+        label: slot.querySelector('.catering-jenis-select')?.value || '',
+        order: parseInt(slot.querySelector('.catering-order-select')?.value || '1'),
+        items: [...slot.querySelectorAll('.catering-slot-menu')].map(s => s.value).filter(v => v),
+      })),
+      // Legacy flat fields for backward compat
+      meals:  [...document.querySelectorAll('#catering-items-selector .catering-meal-select')].map(s => s.value),
+      snacks: [...document.querySelectorAll('#catering-items-selector .catering-snack-select')].map(s => s.value),
+    } : null,
+    menuOptions: advanceMode ? document.getElementById('f-menu-options').value : '',
+    advanceFiles: collectedFiles,
+    
+    status: existingData.status || 'confirmed',
+    createdAt: existingData.createdAt || new Date().toISOString(),
+    createdBy: existingData.createdBy || currentUser.username,
+    allowedEditors: existingData.allowedEditors || [],
+    updatedAt: new Date().toISOString(),
+    updatedBy: currentUser.username
+  };
+
+  const operation = editingId 
+    ? bookingsRef.child(editingId).set(data) 
+    : bookingsRef.push(data);
+
+  operation.then(() => {
+    closeModal();
+    showToast(`Booking berhasil ${editingId ? 'diperbarui' : 'disimpan'}!`, 'success');
+    editingId = null;
+    document.getElementById('ktp-preview').innerHTML = '';
+  }).catch(err => {
+    showToast('Error: ' + err.message, 'error');
+  });
+}
+
+function handleKTPUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('File terlalu besar! Maksimal 2MB', 'error');
+    input.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('f-ktp-url').value = e.target.result;
+    document.getElementById('ktp-preview').innerHTML = `✅ File siap: ${file.name}`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ====================== ADVANCE FEATURES ======================
+function toggleAdvanceMode(checked) {
+  const container = document.getElementById('advance-container');
+  if (checked) container.classList.add('show');
+  else container.classList.remove('show');
+}
+
+function renderCateringSelectors(packageKey, selectedItems = null) {
+  const container = document.getElementById('catering-items-selector');
+  if (!packageKey) {
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:12px;text-align:center;grid-column:1/-1;">Pilih paket untuk menentukan menu.</p>';
+    return;
+  }
+  const pkg       = CATERING.packages[packageKey];
+  const mealsList = CATERING.menuItems.meals  || [];
+  const snackList = CATERING.menuItems.snacks || [];
+
+  const allJenis = [
+    {val:'Makan Pagi',  icon:'\uD83C\uDF05', type:'meal'},
+    {val:'Makan Siang', icon:'\u2600\uFE0F',  type:'meal'},
+    {val:'Makan Malam', icon:'\uD83C\uDF19', type:'meal'},
+    {val:'Snack 1',     icon:'\u2615',        type:'snack'},
+    {val:'Snack 2',     icon:'\uD83C\uDF75', type:'snack'},
+  ];
+
+  function jenisOpts(selected) {
+    return allJenis.map(j =>
+      '<option value="'+j.val+'" data-type="'+j.type+'" '+(selected===j.val?'selected':'')+'>'+j.icon+' '+j.val+'</option>'
+    ).join('');
+  }
+
+  function menuOpts(type, val) {
+    const list = type === 'meal' ? mealsList : snackList;
+    return '<option value="">-- Pilih Menu --</option>' +
+      list.map(m => '<option value="'+m+'" '+(val===m?'selected':'')+'>'+m+'</option>').join('');
+  }
+
+  function buildItemRow(type, val, removable) {
+    const isMeal = type === 'meal';
+    return '<div class="catering-item-row" style="display:flex;align-items:center;gap:6px;margin-top:6px;">'
+      + '<select class="'+(isMeal?'catering-meal-select':'catering-snack-select')+' catering-slot-menu"'
+      + ' style="flex:1;border:1.5px solid var(--cream2);border-radius:8px;padding:7px 10px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:var(--cream);color:var(--dark);outline:none;">'
+      + menuOpts(type, val)
+      + '</select>'
+      + '<button type="button" data-ctype="'+type+'" onclick="addCateringSubItem(this,this.dataset.ctype)"'
+      + ' style="width:30px;height:30px;border-radius:6px;border:1.5px solid var(--gold);background:rgba(201,168,76,0.12);color:var(--gold-dark);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;">+</button>'
+      + (removable ? '<button type="button" onclick="removeCateringSubItem(this)"'
+        + ' style="width:30px;height:30px;border-radius:6px;border:1.5px solid var(--cream2);background:none;color:var(--danger);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;">−</button>'
+        : '<div style="width:30px;flex-shrink:0;"></div>')
+      + '</div>';
+  }
+
+  function buildSlot(num, jenisVal, type, items) {
+    const isMeal = type === 'meal';
+    const accent = isMeal ? 'var(--gold)' : 'var(--warning)';
+    const itemsHtml = items.map((v,i) => buildItemRow(type, v, i > 0)).join('');
+    return '<div class="catering-slot" data-type="'+type+'"'
+      + ' style="background:white;border:1.5px solid var(--cream2);border-radius:12px;overflow:hidden;">'
+      + '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--cream);border-bottom:1px solid var(--cream2);">'
+      + '<span class="catering-num" style="background:'+accent+';color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">'+num+'</span>'
+      + '<select class="catering-jenis-select" onchange="updateCateringMenuList(this)"'
+      + ' style="flex:1;border:1.5px solid var(--cream2);border-radius:8px;padding:8px 12px;font-size:14px;font-weight:700;font-family:\'DM Sans\',sans-serif;background:white;color:var(--dark);outline:none;cursor:pointer;">'
+      + jenisOpts(jenisVal)
+      + '</select>'
+      + '<button type="button" onclick="removeCateringSlot(this)"'
+      + ' style="width:28px;height:28px;border-radius:6px;border:none;background:var(--danger-bg);color:var(--danger);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>'
+      + '</div>'
+      + '<div class="catering-items-list" style="padding:10px 14px;display:flex;flex-direction:column;gap:0;">'
+      + itemsHtml
+      + '</div>'
+      + '</div>';
+  }
+
+  // Build default interleaved rows or restore saved
+  let rows = [];
+  if (selectedItems && selectedItems.slots && selectedItems.slots.length) {
+    rows = [...selectedItems.slots].sort((a,b) => a.order - b.order)
+      .map(s => ({ jenis: s.label, type: s.type, items: s.items && s.items.length ? s.items : [''] }));
+  } else {
+    // Interleave: Makan Pagi, Snack 1, Makan Siang, Snack 2, Makan Malam
+    const meals  = ['Makan Pagi','Makan Siang','Makan Malam'].slice(0, pkg.meals);
+    const snacks = ['Snack 1','Snack 2'].slice(0, pkg.snacks);
+    const maxLen = Math.max(meals.length, snacks.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (meals[i])  rows.push({jenis: meals[i],  type:'meal',  items:['']});
+      if (snacks[i]) rows.push({jenis: snacks[i], type:'snack', items:['']});
+    }
+  }
+
+  let html = rows.map((r,i) => buildSlot(i+1, r.jenis, r.type, r.items)).join('');
+  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">'
+    + '<button type="button" onclick="addExtraCateringSlot(\'meal\')"'
+    + ' style="flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(201,168,76,0.08);border:1.5px dashed var(--gold);border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--gold-dark);cursor:pointer;font-family:\'DM Sans\',sans-serif;">'
+    + '+ Tambah Makan</button>'
+    + '<button type="button" onclick="addExtraCateringSlot(\'snack\')"'
+    + ' style="flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(214,137,16,0.08);border:1.5px dashed var(--warning);border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;color:var(--warning);cursor:pointer;font-family:\'DM Sans\',sans-serif;">'
+    + '+ Tambah Snack</button>'
+    + '</div>';
+
+  container.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:4px 0;';
+  container.innerHTML = html;
+}
+
+function updateCateringMenuList(sel) {
+  const slot   = sel.closest('.catering-slot');
+  const opt    = sel.options[sel.selectedIndex];
+  const type   = opt.dataset.type || (sel.value.toLowerCase().includes('snack') ? 'snack' : 'meal');
+  const isMeal = type === 'meal';
+  const list   = isMeal ? (CATERING.menuItems.meals||[]) : (CATERING.menuItems.snacks||[]);
+  const accent = isMeal ? 'var(--gold)' : 'var(--warning)';
+  slot.dataset.type = type;
+  const badge = slot.querySelector('.catering-num');
+  if (badge) badge.style.background = accent;
+  slot.querySelectorAll('.catering-item-row').forEach(row => {
+    const ms = row.querySelector('select.catering-slot-menu');
+    if (!ms) return;
+    const cur = ms.value;
+    ms.className = (isMeal?'catering-meal-select':'catering-snack-select') + ' catering-slot-menu';
+    ms.innerHTML = '<option value="">-- Pilih Menu --</option>' +
+      list.map(m => '<option value="'+m+'" '+(cur===m?'selected':'')+'>'+m+'</option>').join('');
+    const ab = row.querySelector('button[onclick*="addCateringSubItem"]');
+    if (ab) ab.setAttribute('onclick', "addCateringSubItem(this,'"+type+"')");
+  });
+}
+
+function addCateringSubItem(btn, type) {
+  const list   = btn.closest('.catering-items-list');
+  const isMeal = type === 'meal';
+  const items  = isMeal ? (CATERING.menuItems.meals||[]) : (CATERING.menuItems.snacks||[]);
+  const div = document.createElement('div');
+  div.className = 'catering-item-row';
+  div.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:6px;';
+  div.innerHTML = '<select class="'+(isMeal?'catering-meal-select':'catering-snack-select')+' catering-slot-menu"'
+    + ' style="flex:1;border:1.5px solid var(--cream2);border-radius:8px;padding:7px 10px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:var(--cream);color:var(--dark);outline:none;">'
+    + '<option value="">-- Pilih Pendamping --</option>'
+    + items.map(m => '<option value="'+m+'">'+m+'</option>').join('')
+    + '</select>'
+    + '<button type="button" data-ctype="'+type+'" onclick="addCateringSubItem(this,this.dataset.ctype)"'
+    + ' style="width:30px;height:30px;border-radius:6px;border:1.5px solid var(--gold);background:rgba(201,168,76,0.12);color:var(--gold-dark);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;">+</button>'
+    + '<button type="button" onclick="removeCateringSubItem(this)"'
+    + ' style="width:30px;height:30px;border-radius:6px;border:1.5px solid var(--cream2);background:none;color:var(--danger);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;">−</button>';
+  list.appendChild(div);
+}
+
+function removeCateringSubItem(btn) {
+  const row  = btn.closest('.catering-item-row');
+  const list = row.parentElement;
+  if (list.querySelectorAll('.catering-item-row').length <= 1) { showToast('Minimal 1 menu per slot.','error'); return; }
+  row.remove();
+}
+
+function removeCateringSlot(btn) {
+  const slot = btn.closest('.catering-slot');
+  const wrap = slot.parentElement;
+  if (wrap.querySelectorAll('.catering-slot').length <= 1) { showToast('Minimal harus ada 1 pilihan menu.','error'); return; }
+  slot.remove();
+  reNumberCateringRows();
+}
+
+function addExtraCateringSlot(type) {
+  const container = document.getElementById('catering-items-selector');
+  const isMeal  = type === 'meal';
+  const items   = isMeal ? (CATERING.menuItems.meals||[]) : (CATERING.menuItems.snacks||[]);
+  const accent  = isMeal ? 'var(--gold)' : 'var(--warning)';
+  const existing = container.querySelectorAll('.catering-slot').length;
+  const allJenis = [
+    {val:'Makan Pagi',  icon:'\uD83C\uDF05', type:'meal'},
+    {val:'Makan Siang', icon:'\u2600\uFE0F',  type:'meal'},
+    {val:'Makan Malam', icon:'\uD83C\uDF19', type:'meal'},
+    {val:'Snack 1',     icon:'\u2615',        type:'snack'},
+    {val:'Snack 2',     icon:'\uD83C\uDF75', type:'snack'},
+  ];
+  const div = document.createElement('div');
+  div.className = 'catering-slot';
+  div.dataset.type = type;
+  div.style.cssText = 'background:white;border:1.5px solid var(--cream2);border-radius:12px;overflow:hidden;';
+  div.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--cream);border-bottom:1px solid var(--cream2);">'
+    + '<span class="catering-num" style="background:'+accent+';color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">'+(existing+1)+'</span>'
+    + '<select class="catering-jenis-select" onchange="updateCateringMenuList(this)"'
+    + ' style="flex:1;border:1.5px solid var(--cream2);border-radius:8px;padding:8px 12px;font-size:14px;font-weight:700;font-family:\'DM Sans\',sans-serif;background:white;color:var(--dark);outline:none;cursor:pointer;">'
+    + allJenis.map(j => '<option value="'+j.val+'" data-type="'+j.type+'" '+(j.type===type&&!allJenis.slice(0,allJenis.indexOf(j)).some(x=>x.type===type)?'selected':'')+'>'+j.icon+' '+j.val+'</option>').join('')
+    + '</select>'
+    + '<button type="button" onclick="removeCateringSlot(this)" style="width:28px;height:28px;border-radius:6px;border:none;background:var(--danger-bg);color:var(--danger);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>'
+    + '</div>'
+    + '<div class="catering-items-list" style="padding:10px 14px;">'
+    + '<div class="catering-item-row" style="display:flex;align-items:center;gap:6px;">'
+    + '<select class="'+(isMeal?'catering-meal-select':'catering-snack-select')+' catering-slot-menu"'
+    + ' style="flex:1;border:1.5px solid var(--cream2);border-radius:8px;padding:7px 10px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:var(--cream);color:var(--dark);outline:none;">'
+    + '<option value="">-- Pilih Menu --</option>'
+    + items.map(m => '<option value="'+m+'">'+m+'</option>').join('')
+    + '</select>'
+    + '<button type="button" onclick="addCateringSubItem(this,this.dataset.ctype)" style="width:30px;height:30px;border-radius:6px;border:1.5px solid var(--gold);background:rgba(201,168,76,0.12);color:var(--gold-dark);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;">+</button>'
+    + '<div style="width:30px;flex-shrink:0;"></div>'
+    + '</div></div>';
+  const btnRow = container.querySelector('div[style*="display:flex;gap:8px"]');
+  if (btnRow) container.insertBefore(div, btnRow);
+  else container.appendChild(div);
+  reNumberCateringRows();
+}
+
+function reNumberCateringRows() {
+  const c = document.getElementById('catering-items-selector');
+  if (!c) return;
+  c.querySelectorAll('.catering-slot').forEach((s,i) => { const n=s.querySelector('.catering-num'); if(n) n.textContent=i+1; });
+}
+
+function addCateringRow(type) { addExtraCateringSlot(type); }
+function removeCateringRow(btn) { removeCateringSlot(btn); }
+function updateCateringTimeLabel() {}
+
+let dynamicFiles = [];
+
+function addFileUploadItem(data = null) {
+  const list = document.getElementById('dynamic-file-list');
+  const id = Date.now() + Math.random().toString(36).substr(2, 9);
+  
+  const div = document.createElement('div');
+  div.className = 'file-upload-item';
+  div.id = `file-item-${id}`;
+  div.innerHTML = `
+    <div style="flex:1">
+      <input type="text" placeholder="Nama File (Misal: Rundown, Menu, dll)" value="${data ? data.name : ''}" id="file-name-${id}">
+      <div style="margin-top:5px; display:flex; gap:8px; align-items:center;">
+        <input type="file" onchange="handleDynamicFileUpload(this, '${id}')">
+        <input type="hidden" id="file-url-${id}" value="${data ? data.url : ''}">
+        ${data && data.url ? '<span style="color:var(--success); font-size:11px;">✅ Terunggah</span>' : ''}
+      </div>
+    </div>
+    <button type="button" class="btn-remove" onclick="removeFileUploadItem('${id}')" title="Hapus">🗑️</button>
+  `;
+  list.appendChild(div);
+}
+
+function removeFileUploadItem(id) {
+  const item = document.getElementById(`file-item-${id}`);
+  if (item) item.remove();
+}
+
+function handleDynamicFileUpload(input, id) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('File terlalu besar! Maksimal 2MB', 'error');
+    input.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById(`file-url-${id}`).value = e.target.result;
+    showToast('File siap!', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteBooking(id) {
+  const b = bookings.find(x => x.id === id);
+  if (!b) return;
+  if (!canDelete(b)) {
+    showToast('❌ Anda tidak punya izin menghapus booking ini.', 'error');
+    return;
+  }
+  if (confirm('Hapus booking ini?')) {
+    bookingsRef.child(id).remove().then(() => { closeDetailModal(); showToast('Dihapus', 'success'); });
+  }
+}
+
+function editBooking(id) {
+  const b = bookings.find(x => x.id === id);
+  if (!b) return;
+  if (!canEdit(b)) {
+    showToast('❌ Anda tidak punya izin mengedit booking ini.', 'error');
+    return;
+  }
+    editingId = id;
+    closeDetailModal();
+    document.getElementById('f-name').value = b.name;
+    document.getElementById('f-guests').value = b.guestCount;
+    document.getElementById('f-phone').value = b.phone || '';
+    document.getElementById('f-address').value = b.address || '';
+    document.getElementById('f-sales').value = b.sales || '';
+    document.getElementById('f-ktp-url').value = b.ktpUrl || '';
+    document.getElementById('ktp-preview').innerHTML = b.ktpUrl ? '✅ Dokumen sudah ada' : '';
+    document.getElementById('f-company').value = b.company || '';
+    document.getElementById('f-checkin').value = b.checkin;
+    document.getElementById('f-checkout').value = b.checkout;
+    
+    // Set aula fields
+    document.getElementById('f-aula-capacity').value = b.aulaCapacity || '';
+    document.getElementById('f-aula-layout').value = b.aulaLayout || '';
+    document.getElementById('f-aula-notes').value = b.aulaNotes || '';
+    
+    // Set Status & Payment
+    document.getElementById('f-status').value = b.status || 'booking';
+    document.getElementById('f-total-payment').value = b.totalPayment ? parseFloat(b.totalPayment).toLocaleString('id-ID') : '';
+    // Restore payment records
+    const payList = document.getElementById('payment-records');
+    payList.innerHTML = '';
+    if (b.payments && b.payments.length) {
+      b.payments.forEach(p => addPaymentRecord(p));
+    } else if (b.paidAmount > 0) {
+      // Migrate legacy single paidAmount
+      addPaymentRecord({ amount: b.paidAmount, note: 'Pembayaran', date: b.checkin || '' });
+    }
+    updateSisaBayar();
+    
+    // Set Advance Features
+    const advanceMode = !!b.advanceMode;
+    document.getElementById('f-advance-mode').checked = advanceMode;
+    toggleAdvanceMode(advanceMode);
+    
+    if (b.catering) {
+      document.getElementById('f-catering-package').value = b.catering.package || '';
+      renderCateringSelectors(b.catering.package, b.catering);
+    } else {
+      document.getElementById('f-catering-package').value = '';
+      renderCateringSelectors('');
+    }
+    
+    document.getElementById('f-menu-options').value = b.menuOptions || '';
+    document.getElementById('dynamic-file-list').innerHTML = '';
+    if (b.advanceFiles && b.advanceFiles.length > 0) {
+      b.advanceFiles.forEach(file => addFileUploadItem(file));
+    }
+
+    tempSelectedRooms = [...(b.rooms || [])];
+    confirmRoomSelection();
+    
+    // Set aula checkboxes
+    document.querySelectorAll('input[name="aula"]').forEach(cb => {
+      cb.checked = (b.aula || []).includes(cb.value);
+    });
+    
+    // Set service checkboxes
+    document.querySelectorAll('input[name="service"]').forEach(cb => {
+      cb.checked = (b.services || []).includes(cb.value);
+    });
+
+    document.getElementById('booking-modal').classList.add('open');
+}
+
+// ====================== ROOM PICKER ======================
+function openRoomPicker() { 
+  if (pickerSelectedBuilding === 'aula-hall') pickerSelectedBuilding = 'melati';
+  document.getElementById('room-picker-modal').classList.add('open'); 
+  renderPickerFloorplan(); 
+}
+function closeRoomPicker() { document.getElementById('room-picker-modal').classList.remove('open'); }
+function selectPickerBuilding(key) { pickerSelectedBuilding = key; renderPickerFloorplan(); }
+function renderPickerFloorplan() {
+  const bld = BUILDINGS[pickerSelectedBuilding];
+  if (!bld) return;
+  const el = document.getElementById('picker-floorplan-content');
+  
+  // Hitung ketersediaan (untuk booking baru, cek bentrokan tanggal)
+  const checkin = document.getElementById('f-checkin').value;
+  const checkout = document.getElementById('f-checkout').value;
+  const occupiedRooms = new Set();
+  
+  if (checkin && checkout) {
+    bookings.forEach(b => {
+        if (b.id !== editingId && b.status !== 'cancelled' && !(b.checkout <= checkin || b.checkin >= checkout)) {
+            (b.rooms || []).forEach(r => occupiedRooms.add(r.id));
+        }
+    });
+  }
+
+  let html = `<h4 style="margin-bottom:16px; color:var(--dark);">${bld.name}</h4>`;
+  
+  bld.floors.forEach((floor, floorIndex) => {
+    html += `<div style="margin-bottom:20px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <div style="font-size:13px; font-weight:600; color:var(--text-muted);">${floor.name}</div>
+        <button type="button" class="btn btn-outline btn-sm" style="padding:2px 8px; font-size:11px;" onclick="toggleFloorRooms('${pickerSelectedBuilding}', ${floorIndex})">
+          ✨ Pilih Semua Lantai
+        </button>
+      </div>
+      <div class="room-grid" style="display:flex; flex-wrap:wrap; gap:8px;">`;
+    
+    const prefix = floor.prefix || '';
+    
+    for (let r = 1; r <= floor.rooms; r++) {
+      const roomNum = floor.name === 'Unit' || floor.name === 'VIP' ? (prefix + r) : (floor.name.replace('Lantai ','') + ('0'+r).slice(-2));
+      const roomId = `${pickerSelectedBuilding}_${floor.name}_${roomNum}`;
+      const isOccupied = occupiedRooms.has(roomId);
+      const isSelected = tempSelectedRooms.some(x => x.id === roomId);
+      
+      html += `<div class="room-cell${isOccupied ? ' occupied' : ''}${isSelected ? ' selected' : ''}" 
+                   style="width:45px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:6px; border:1.5px solid var(--cream2); font-size:11px; font-weight:600; cursor:${isOccupied ? 'not-allowed' : 'pointer'}; transition:all 0.2s; background:${isSelected ? 'var(--info-bg)' : (isOccupied ? 'var(--danger-bg)' : 'white')}; color:${isSelected ? 'var(--info)' : (isOccupied ? 'var(--danger)' : 'var(--text)')}; border-color:${isSelected ? 'var(--info)' : (isOccupied ? 'var(--danger)' : 'var(--cream2)')};"
+                   onclick="${isOccupied ? '' : `toggleRoom('${roomId}', '${floor.name} - Kamar ${roomNum}')`}">
+                ${roomNum}
+              </div>`;
+    }
+
+    if (floor.vip > 0) {
+      for (let v = 1; v <= floor.vip; v++) {
+        const roomId = `${pickerSelectedBuilding}_${floor.name}_VIP_${v}`;
+        const isOccupied = occupiedRooms.has(roomId);
+        const isSelected = tempSelectedRooms.some(x => x.id === roomId);
+        html += `<div class="room-cell vip${isOccupied ? ' occupied' : ''}${isSelected ? ' selected' : ''}" 
+                     style="width:45px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:6px; border:1.5px solid var(--warning); background:${isSelected ? 'var(--info-bg)' : (isOccupied ? 'var(--danger-bg)' : 'var(--warning-bg)')}; color:${isSelected ? 'var(--info)' : (isOccupied ? 'var(--danger)' : 'var(--warning)')}; cursor:${isOccupied ? 'not-allowed' : 'pointer'};"
+                     onclick="${isOccupied ? '' : `toggleRoom('${roomId}', '${floor.name} - VIP ${v}')`}">
+                  V${v}
+                </div>`;
+      }
+    }
+
+    html += `</div></div>`;
+  });
+  
+  el.innerHTML = html;
+  document.getElementById('picker-building-selector').innerHTML = Object.entries(BUILDINGS)
+    .filter(([k, b]) => k !== 'aula-hall')
+    .map(([k,b]) => `<button class="bld-btn${k===pickerSelectedBuilding?' active':''}" onclick="selectPickerBuilding('${k}')">${b.name}</button>`).join('');
+}
+function toggleRoom(id, label) {
+  const idx = tempSelectedRooms.findIndex(x => x.id === id);
+  if (idx > -1) tempSelectedRooms.splice(idx, 1); else tempSelectedRooms.push({id, label});
+  renderPickerFloorplan();
+}
+
+function toggleFloorRooms(buildingKey, floorIndex) {
+  const bld = BUILDINGS[buildingKey];
+  if (!bld) return;
+  const floor = bld.floors[floorIndex];
+  if (!floor) return;
+
+  // Cek ketersediaan lagi
+  const checkin = document.getElementById('f-checkin').value;
+  const checkout = document.getElementById('f-checkout').value;
+  const occupiedRooms = new Set();
+  if (checkin && checkout) {
+    bookings.forEach(b => {
+        if (b.id !== editingId && b.status !== 'cancelled' && !(b.checkout <= checkin || b.checkin >= checkout)) {
+            (b.rooms || []).forEach(r => occupiedRooms.add(r.id));
+        }
+    });
+  }
+
+  const floorRooms = [];
+  const prefix = floor.prefix || '';
+  
+  // Kamar biasa
+  for (let r = 1; r <= floor.rooms; r++) {
+    const roomNum = floor.name === 'Unit' || floor.name === 'VIP' ? (prefix + r) : (floor.name.replace('Lantai ','') + ('0'+r).slice(-2));
+    const roomId = `${buildingKey}_${floor.name}_${roomNum}`;
+    if (!occupiedRooms.has(roomId)) {
+      floorRooms.push({ id: roomId, label: `${floor.name} - Kamar ${roomNum}` });
+    }
+  }
+  // Kamar VIP
+  if (floor.vip > 0) {
+    for (let v = 1; v <= floor.vip; v++) {
+      const roomId = `${buildingKey}_${floor.name}_VIP_${v}`;
+      if (!occupiedRooms.has(roomId)) {
+        floorRooms.push({ id: roomId, label: `${floor.name} - VIP ${v}` });
+      }
+    }
+  }
+  // Ruangan spesial (DIHAPUS DARI PICKER)
+  /*
+  if (floor.special) {
+    floor.special.forEach(s => {
+      const roomId = `${buildingKey}_${floor.name}_${s.id}`;
+      if (!occupiedRooms.has(roomId)) {
+        floorRooms.push({ id: roomId, label: s.label });
+      }
+    });
+  }
+  */
+
+  // Jika semua kamar lantai ini sudah terpilih, maka batalkan semua.
+  // Jika belum, maka pilih yang belum terpilih.
+  const allSelected = floorRooms.every(fr => tempSelectedRooms.some(tr => tr.id === fr.id));
+  
+  if (allSelected) {
+    // Batalkan pilihan untuk kamar-kamar di lantai ini
+    tempSelectedRooms = tempSelectedRooms.filter(tr => !floorRooms.some(fr => fr.id === tr.id));
+  } else {
+    // Tambahkan kamar yang belum terpilih
+    floorRooms.forEach(fr => {
+      if (!tempSelectedRooms.some(tr => tr.id === fr.id)) {
+        tempSelectedRooms.push(fr);
+      }
+    });
+  }
+  
+  renderPickerFloorplan();
+}
+function confirmRoomSelection() {
+  const el = document.getElementById('f-rooms-list');
+  if (!tempSelectedRooms.length) { el.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">Belum ada kamar dipilih</span>'; closeRoomPicker(); return; }
+
+  // Group by building + floor
+  const groups = {};
+  tempSelectedRooms.forEach(r => {
+    // r.id format: buildingKey_floorName_roomNum
+    const parts = r.id.split('_');
+    const bldKey = parts[0];
+    const floor  = parts[1] || '';
+    const key    = bldKey + '||' + floor;
+    if (!groups[key]) groups[key] = { bldKey, floor, rooms: [] };
+    groups[key].rooms.push(r);
+  });
+
+  const bldShort = k => {
+    const n = getBuildingName(k);
+    return n.replace('Gedung ', '').replace('Cottage ', 'Ctg. ').replace('Bungalow ', 'Bgw. ');
+  };
+  const floorShort = f => f.replace('Lantai ', 'Lt.').replace('Unit', 'Unit').replace('VIP', 'VIP');
+
+  const chips = Object.values(groups).map(g => {
+    const label = `${bldShort(g.bldKey)} ${floorShort(g.floor)}`;
+    const count = g.rooms.length;
+    const title = g.rooms.map(r => r.label).join(', ');
+    return `<span title="${title}" onclick="showRoomGroupDetail('${g.bldKey}','${g.floor}')" style="display:inline-flex;align-items:center;gap:6px;background:var(--info-bg);color:var(--info);border:1px solid rgba(31,97,141,0.2);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer;margin:3px;transition:all 0.2s;" onmouseover="this.style.background='var(--info)';this.style.color='white'" onmouseout="this.style.background='var(--info-bg)';this.style.color='var(--info)'">
+      🛏️ ${label} <span style="background:var(--info);color:white;border-radius:10px;padding:1px 7px;font-size:11px;">${count}</span>
+    </span>`;
+  }).join('');
+
+  const total = tempSelectedRooms.length;
+  el.innerHTML = `<div style="display:flex;flex-wrap:wrap;align-items:center;gap:2px;margin-bottom:6px;">${chips}</div>
+    <div style="font-size:11px;color:var(--text-muted);">Total: <strong>${total} kamar</strong> dipilih &nbsp;·&nbsp; Hover/klik chip untuk lihat detail</div>`;
+  closeRoomPicker();
+}
+
+function showRoomGroupDetail(bldKey, floor) {
+  const rooms = tempSelectedRooms.filter(r => r.id.startsWith(bldKey + '_' + floor));
+  showToast('📋 ' + getBuildingName(bldKey) + ' ' + floor + ': ' + rooms.map(r=>r.label).join(', '), 'info');
+}
+
+// ====================== CALENDAR & FLOORPLAN ======================
+function populateCalSalesFilter() {
+  const sel = document.getElementById('cal-filter-sales');
+  if (!sel) return;
+  const currentVal = sel.value;
+  const salesSet = new Set();
+  bookings.forEach(b => { if (b.sales) salesSet.add(b.sales); });
+  sel.innerHTML = '<option value="">👤 Semua Sales</option>';
+  [...salesSet].sort().forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = '👤 ' + s;
+    sel.appendChild(opt);
+  });
+  sel.value = currentVal;
+}
+
+function resetCalFilter() {
+  const t = document.getElementById('cal-filter-type');
+  const s = document.getElementById('cal-filter-sales');
+  if (t) t.value = 'all';
+  if (s) s.value = '';
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const y = currentCal.getFullYear(), m = currentCal.getMonth();
+  const bulanID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const monthName = `${bulanID[m]} ${y}`;
+  document.getElementById('cal-month-label').innerHTML = `<span>${monthName}</span>`;
+
+  populateCalSalesFilter();
+
+  const filterType  = document.getElementById('cal-filter-type')?.value  || 'all';
+  const filterSales = document.getElementById('cal-filter-sales')?.value || '';
+
+  const today = new Date().toISOString().split('T')[0];
+  const last  = new Date(y, m+1, 0).getDate();
+  const firstDay = new Date(y, m, 1).getDay(); // 0=Sun
+
+  let html = '';
+  // Leading empty cells
+  for (let e = 0; e < firstDay; e++) {
+    html += `<div class="cal-day other-month"></div>`;
+  }
+
+  for (let i = 1; i <= last; i++) {
+    const dStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+
+    // All bookings active on this day (non-cancelled)
+    let dayBk = bookings.filter(b => b.checkin <= dStr && b.checkout > dStr && b.status !== 'cancelled');
+
+    // Apply type filter
+    if (filterType === 'kamar') dayBk = dayBk.filter(b => b.rooms && b.rooms.length > 0);
+    if (filterType === 'aula')  dayBk = dayBk.filter(b => b.aula  && b.aula.length  > 0);
+
+    // Apply sales filter
+    if (filterSales) dayBk = dayBk.filter(b => b.sales === filterSales);
+
+    const isToday = dStr === today;
+
+    // Count per type
+    const kamarCount = dayBk.filter(b => b.rooms && b.rooms.length > 0).length;
+    const aulaCount  = dayBk.filter(b => b.aula  && b.aula.length  > 0).length;
+    const salesSet   = [...new Set(dayBk.filter(b => b.sales).map(b => b.sales))];
+
+    // Build mini info chips inside cell
+    let chips = '';
+    if (dayBk.length > 0) {
+      if (filterType !== 'aula' && kamarCount > 0)
+        chips += `<div class="cal-chip chip-kamar">🛏️ ${kamarCount} Kamar</div>`;
+      if (filterType !== 'kamar' && aulaCount > 0)
+        chips += `<div class="cal-chip chip-aula">🏛️ ${aulaCount} Aula</div>`;
+      if (salesSet.length > 0)
+        chips += salesSet.map(s => `<div class="cal-chip chip-sales">👤 ${s.split('@')[0]}</div>`).join('');
+    }
+
+    const busyClass = dayBk.length >= 5 ? ' busy-day' : (dayBk.length > 0 ? ' has-booking' : '');
+    html += `<div class="cal-day${isToday?' today':''}${busyClass}" onclick="showDayDetail('${dStr}')">
+      <span class="day-num">${i}</span>
+      ${chips}
+    </div>`;
+  }
+  document.getElementById('cal-body').innerHTML = html;
+}
+function calNav(dir) { currentCal.setMonth(currentCal.getMonth()+dir); renderCalendar(); }
+
+function renderFloorplan() {
+  const bld = BUILDINGS[selectedBuilding];
+  if (!bld) return;
+  const el = document.getElementById('floorplan-content');
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Ambil daftar kamar yang terisi (Check-in) hari ini
+  const occupiedRooms = new Set();
+  bookings.forEach(b => {
+      if (b.status === 'checkin' && b.checkin <= today && b.checkout > today) {
+          (b.rooms || []).forEach(r => occupiedRooms.add(r.id));
+      }
+  });
+
+  let html = `<h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px">${bld.name}</h3>`;
+  
+  bld.floors.forEach(floor => {
+    html += `<div class="floor-plan" style="margin-bottom:24px">
+      <div class="floor-title" style="font-weight:600; color:var(--dark); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+        <span style="background:var(--gold); width:4px; height:16px; border-radius:2px;"></span>
+        ${floor.name}
+      </div>
+      <div class="room-grid" style="display:flex; flex-wrap:wrap; gap:10px;">`;
+    
+    const prefix = floor.prefix || '';
+    
+    // Render Kamar Biasa
+    for (let r = 1; r <= floor.rooms; r++) {
+      const roomNum = floor.name === 'Unit' || floor.name === 'VIP' ? (prefix + r) : (floor.name.replace('Lantai ','') + ('0'+r).slice(-2));
+      const roomId = `${selectedBuilding}_${floor.name}_${roomNum}`;
+      const isOccupied = occupiedRooms.has(roomId);
+      
+      html += `<div class="room-cell${isOccupied ? ' occupied' : ''}" 
+                   style="width:50px; height:45px; display:flex; align-items:center; justify-content:center; border-radius:8px; border:1.5px solid var(--cream2); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;"
+                   onclick="showRoomSchedule('${roomId}', '${floor.name} - Kamar ${roomNum}')">
+                ${roomNum}
+              </div>`;
+    }
+
+    // Render Kamar VIP (jika ada di lantai tersebut)
+    if (floor.vip > 0) {
+      for (let v = 1; v <= floor.vip; v++) {
+        const roomId = `${selectedBuilding}_${floor.name}_VIP_${v}`;
+        const isOccupied = occupiedRooms.has(roomId);
+        html += `<div class="room-cell vip${isOccupied ? ' occupied' : ''}" 
+                     style="width:50px; height:45px; display:flex; align-items:center; justify-content:center; border-radius:8px; border:1.5px solid var(--warning); background:var(--warning-bg); color:var(--warning); font-size:12px; font-weight:600; cursor:pointer;"
+                     onclick="showRoomSchedule('${roomId}', '${floor.name} - VIP ${v}')">
+                  V${v}
+                </div>`;
+      }
+    }
+
+    // Render Ruangan Spesial (Aula/Hall)
+    if (floor.special) {
+      floor.special.forEach(s => {
+        const roomId = `${selectedBuilding}_${floor.name}_${s.id}`;
+        const isOccupied = occupiedRooms.has(roomId);
+        html += `<div class="room-cell${isOccupied ? ' occupied' : ''}" 
+                     style="width:auto; min-width:60px; padding:0 12px; height:45px; display:flex; align-items:center; justify-content:center; border-radius:8px; border:1.5px solid var(--info); background:var(--info-bg); color:var(--info); font-size:12px; font-weight:600; cursor:pointer;"
+                     onclick="showRoomSchedule('${roomId}', '${s.label}')">
+                  ${s.id}
+                </div>`;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+  
+  el.innerHTML = html;
+}
+
+function showRoomSchedule(roomId, label) {
+    const dayBookings = bookings.filter(b => b.status !== 'cancelled' && (b.rooms || []).some(r => r.id === roomId));
+    const modal = document.getElementById('day-modal');
+    document.getElementById('day-modal-title').textContent = 'Jadwal: ' + label;
+    const body = document.getElementById('day-modal-body');
+    
+    if (dayBookings.length === 0) {
+        body.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-muted)">Belum ada jadwal booking untuk ruangan ini.</p>';
+    } else {
+        body.innerHTML = dayBookings.sort((a,b) => a.checkin.localeCompare(b.checkin)).map(b => `
+            <div style="background:var(--cream); padding:12px; border-radius:8px; margin-bottom:10px; border-left:4px solid var(--gold);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <strong>${b.name}</strong>
+                    ${getStatusBadge(b.status)}
+                </div>
+                <div style="font-size:12px; color:var(--text-muted);">
+                    📅 ${formatDate(b.checkin)} s/d ${formatDate(b.checkout)}
+                </div>
+            </div>
+        `).join('');
+    }
+    modal.classList.add('open');
+}
+
+// ====================== FLOORPLAN DROPDOWN ======================
+function selectBuilding(k) {
+  selectedBuilding = k;
+  renderBuildingSelector();
+  renderFloorplan();
+}
+
+function renderBuildingSelector() {
+  // Legacy: no-op — handled by new dropdown system
+}
+
+function onFloorplanCategoryChange() {
+  const cat = document.getElementById('fp-category').value;
+  const bldSel = document.getElementById('fp-building');
+  const floorSel = document.getElementById('fp-floor');
+  bldSel.innerHTML = '<option value="">-- Pilih gedung --</option>';
+  floorSel.innerHTML = '<option value="all">Semua Lantai</option>';
+  document.getElementById('fp-stat-pills').innerHTML = '';
+  document.getElementById('floorplan-content').innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><div style="font-size:40px;margin-bottom:12px;">🏗️</div><p>Pilih gedung untuk melihat denah.</p></div>';
+  if (!cat) return;
+  Object.entries(BUILDINGS).filter(([,b]) => b.type === cat).forEach(([k, b]) => {
+    const opt = document.createElement('option');
+    opt.value = k; opt.textContent = b.name;
+    bldSel.appendChild(opt);
+  });
+  // Auto-select if only one building in category
+  if (bldSel.options.length === 2) { bldSel.selectedIndex = 1; onFloorplanBuildingChange(); }
+}
+
+function onFloorplanBuildingChange() {
+  const k = document.getElementById('fp-building').value;
+  const floorSel = document.getElementById('fp-floor');
+  floorSel.innerHTML = '<option value="all">Semua Lantai</option>';
+  if (!k) return;
+  selectedBuilding = k;
+  const bld = BUILDINGS[k];
+  if (bld && bld.floors) {
+    bld.floors.forEach((f, i) => {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = f.name;
+      floorSel.appendChild(opt);
+    });
+  }
+  renderFloorplan();
+}
+
+
+function formatRp(num) {
+  if (!num && num !== 0) return '-';
+  const n = parseFloat(num) || 0;
+  if (n === 0) return 'Rp 0';
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+function parseRp(str) {
+  if (!str) return 0;
+  return parseFloat(String(str).replace(/[^\d]/g, '')) || 0;
+}
+function formatCurrencyInput(el) {
+  const raw  = String(el.value).replace(/[^\d]/g, '');
+  const num  = parseInt(raw, 10);
+  el.value   = isNaN(num) ? '' : num.toLocaleString('id-ID');
+}
+
+// ====================== PAYMENT RECORDS ======================
+function updateSisaBayar() {
+  const total   = parseRp(document.getElementById('f-total-payment')?.value);
+  const records = getPaymentRecords();
+  const paid    = records.reduce((s, r) => s + r.amount, 0);
+  const sisa    = total - paid;
+  const pct     = total > 0 ? Math.min(100, Math.round((paid/total)*100)) : 0;
+
+  const sumEl = document.getElementById('payment-summary');
+  if (sumEl) {
+    sumEl.style.display = total > 0 || paid > 0 ? 'block' : 'none';
+    document.getElementById('summary-total').textContent = formatRp(total);
+    document.getElementById('summary-paid').textContent  = formatRp(paid);
+    const sisaEl = document.getElementById('summary-sisa');
+    sisaEl.textContent  = sisa <= 0 ? '✅ LUNAS' : formatRp(sisa);
+    sisaEl.style.color  = sisa <= 0 ? 'var(--success)' : 'var(--danger)';
+    document.getElementById('summary-bar').style.width = pct + '%';
+    document.getElementById('summary-bar').style.background = sisa <= 0 ? 'var(--success)' : 'var(--gold)';
+  }
+  // keep legacy f-paid-amount in sync
+  const legacyEl = document.getElementById('f-paid-amount');
+  if (legacyEl) legacyEl.value = paid > 0 ? paid.toLocaleString('id-ID') : '';
+}
+
+function getPaymentRecords() {
+  const rows = document.querySelectorAll('#payment-records .pay-record-row');
+  return [...rows].map(row => ({
+    amount:   parseRp(row.querySelector('.pay-amount')?.value),
+    note:     row.querySelector('.pay-note')?.value || '',
+    imageUrl: row.querySelector('.pay-image-url')?.value || '',
+    date:     row.querySelector('.pay-date')?.value || new Date().toISOString().split('T')[0],
+  })).filter(r => r.amount > 0 || r.note);
+}
+
+function addPaymentRecord(data = null) {
+  const list = document.getElementById('payment-records');
+  const id   = 'pay-' + Date.now();
+  const today = new Date().toISOString().split('T')[0];
+  const div  = document.createElement('div');
+  div.className = 'pay-record-row';
+  div.style.cssText = 'background:white;border:1.5px solid var(--cream2);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;';
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:12px;font-weight:700;color:var(--gold-dark);">💰 Pembayaran #${list.children.length + 1}</span>
+      <input type="date" class="pay-date" value="${data ? data.date||today : today}"
+        style="border:1.5px solid var(--cream2);border-radius:6px;padding:5px 10px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;">
+      <button type="button" onclick="removePaymentRecord(this)" style="margin-left:auto;background:none;border:none;color:var(--danger);font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="position:relative;flex:1;min-width:140px;">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--text-muted);">Rp</span>
+        <input type="text" class="pay-amount" placeholder="0" inputmode="numeric" value="${data && data.amount ? data.amount.toLocaleString('id-ID') : ''}"
+          oninput="formatCurrencyInput(this);updateSisaBayar()" onblur="formatCurrencyInput(this);updateSisaBayar()"
+          style="padding-left:30px;border:1.5px solid var(--cream2);border-radius:8px;padding-top:8px;padding-bottom:8px;width:100%;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--cream);">
+      </div>
+      <input type="text" class="pay-note" placeholder="Keterangan (DP, Cicilan 1, Pelunasan...)" value="${data ? data.note||'' : ''}"
+        style="flex:2;min-width:160px;border:1.5px solid var(--cream2);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;background:var(--cream);">
+    </div>
+    <div>
+      <label style="font-size:12px;color:var(--text-muted);font-weight:500;display:block;margin-bottom:6px;">📎 Bukti Transfer / Kuitansi</label>
+      <input type="hidden" class="pay-image-url" value="${data ? data.imageUrl||'' : ''}">
+      <input type="file" accept="image/*" onchange="handlePaymentImageUpload(this,'${id}')"
+        style="font-size:12px;font-family:'DM Sans',sans-serif;">
+      <div id="${id}-preview" style="margin-top:6px;font-size:12px;color:var(--success);">
+        ${data && data.imageUrl ? `<img src="${data.imageUrl}" style="max-height:80px;border-radius:6px;border:1px solid var(--cream2);cursor:pointer;" onclick="showPaymentImage(this.src)"> ✅ Bukti tersimpan` : ''}
+      </div>
+    </div>`;
+  list.appendChild(div);
+  updateSisaBayar();
+}
+
+function removePaymentRecord(btn) {
+  btn.closest('.pay-record-row').remove();
+  // Renumber
+  document.querySelectorAll('#payment-records .pay-record-row').forEach((r, i) => {
+    const lbl = r.querySelector('span');
+    if (lbl) lbl.textContent = `💰 Pembayaran #${i+1}`;
+  });
+  updateSisaBayar();
+}
+
+function handlePaymentImageUpload(input, id) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showToast('Maks 3MB per gambar', 'error'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const row = input.closest('.pay-record-row');
+    row.querySelector('.pay-image-url').value = e.target.result;
+    document.getElementById(id + '-preview').innerHTML =
+      `<img src="${e.target.result}" style="max-height:80px;border-radius:6px;border:1px solid var(--cream2);cursor:pointer;" onclick="showPaymentImage(this.src)"> ✅ ${file.name}`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showPaymentImage(src) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+  overlay.innerHTML = `<img src="${src}" style="max-width:92vw;max-height:92vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.5);">`;
+  overlay.onclick = () => overlay.remove();
+  document.body.appendChild(overlay);
+}
+function getBuildingName(k) { return BUILDINGS[k]?.name || k; }
+function formatDate(d) { return d ? new Date(d).toLocaleDateString('id-ID') : '-'; }
+function getStatusBadge(s) { const map = {booking:'info', confirmed:'success', checkin:'info', checkout:'gray', cancelled:'danger', postponed:'warning'}; return `<span class="badge badge-${map[s]||'gray'}">${s}</span>`; }
+function showToast(m, t='success') {
+  const el = document.createElement('div'); el.className='toast-msg '+t; el.textContent=m;
+  document.getElementById('toast').appendChild(el); setTimeout(() => el.remove(), 3000);
+}
+function logAction(action, details) { db.ref('audit_logs').push({ action, details, user: currentUser ? currentUser.username : 'System', timestamp: new Date().toISOString() }); }
+function showDetailByGuest(name) { navigate('booking'); document.getElementById('search-booking').value = name; filterBookings(); }
+function filterBookings() { const q = document.getElementById('search-booking').value.toLowerCase(); const s = document.getElementById('filter-status').value; const filtered = bookings.filter(b => { const matchName = b.name.toLowerCase().includes(q); const matchStatus = !s || b.status === s; return matchName && matchStatus; }); renderBookingTable(filtered); }
+function showDayDetail(dateStr) {
+  const filterType  = document.getElementById('cal-filter-type')?.value  || 'all';
+  const filterSales = document.getElementById('cal-filter-sales')?.value || '';
+
+  let dayBookings = bookings.filter(b => b.checkin <= dateStr && b.checkout > dateStr && b.status !== 'cancelled');
+  if (filterType === 'kamar') dayBookings = dayBookings.filter(b => b.rooms && b.rooms.length > 0);
+  if (filterType === 'aula')  dayBookings = dayBookings.filter(b => b.aula  && b.aula.length  > 0);
+  if (filterSales) dayBookings = dayBookings.filter(b => b.sales === filterSales);
+
+  const bulanID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const d = new Date(dateStr + 'T00:00:00');
+  const tanggal = `${d.getDate()} ${bulanID[d.getMonth()]} ${d.getFullYear()}`;
+  document.getElementById('day-modal-title').textContent = 'Booking — ' + tanggal;
+
+  const body = document.getElementById('day-modal-body');
+  if (dayBookings.length === 0) {
+    body.innerHTML = '<p style="text-align:center;padding:28px 20px;color:var(--text-muted)">Tidak ada booking pada tanggal ini.</p>';
+  } else {
+    const kamarBk = dayBookings.filter(b => b.rooms && b.rooms.length > 0);
+    const aulaBk  = dayBookings.filter(b => b.aula  && b.aula.length  > 0);
+
+    // Group by sales
+    const bySales = {};
+    dayBookings.forEach(b => {
+      const s = b.sales || '(Tanpa Sales)';
+      if (!bySales[s]) bySales[s] = [];
+      bySales[s].push(b);
+    });
+
+    const cardStyle = `background:var(--cream);padding:14px 16px;border-radius:10px;margin-bottom:10px;cursor:pointer;border-left:4px solid`;
+    const bookingCard = (b, borderColor) => `
+      <div style="${cardStyle} ${borderColor};" onclick="document.getElementById('day-modal').classList.remove('open');showDetail('${b.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <strong style="font-size:14px;">${b.name}</strong>
+          ${getStatusBadge(b.status)}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:10px;">
+          ${b.rooms && b.rooms.length ? `<span>🛏️ ${b.rooms.map(r=>r.label).join(', ')}</span>` : ''}
+          ${b.aula  && b.aula.length  ? `<span>🏛️ ${b.aula.join(', ')}</span>` : ''}
+          ${b.sales ? `<span>👤 ${b.sales}</span>` : ''}
+          <span>📅 ${formatDate(b.checkin)} – ${formatDate(b.checkout)}</span>
+        </div>
+      </div>`;
+
+    let html = '';
+
+    // --- Tab: Filter dropdown inside modal ---
+    html += `<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">`;
+    html += `<select id="day-tab" onchange="refreshDayModal('${dateStr}')" style="border:1.5px solid var(--cream2);border-radius:8px;padding:6px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:white;color:var(--dark);font-weight:600;cursor:pointer;outline:none;">
+      <option value="all">🗂️ Semua (${dayBookings.length})</option>
+      ${kamarBk.length ? `<option value="kamar">🛏️ Kamar (${kamarBk.length})</option>` : ''}
+      ${aulaBk.length  ? `<option value="aula">🏛️ Aula (${aulaBk.length})</option>` : ''}
+      ${Object.keys(bySales).map(s => `<option value="sales:${s}">👤 ${s.split('@')[0]} (${bySales[s].length})</option>`).join('')}
+    </select>`;
+    html += `</div>`;
+
+    // --- Render semua by default ---
+    if (kamarBk.length > 0) {
+      html += `<div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--info);font-weight:600;margin-bottom:8px;">🛏️ Kamar (${kamarBk.length})</div>`;
+      html += kamarBk.map(b => bookingCard(b, 'var(--info)')).join('');
+    }
+    if (aulaBk.length > 0) {
+      html += `<div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--success);font-weight:600;margin:12px 0 8px;">🏛️ Aula (${aulaBk.length})</div>`;
+      html += aulaBk.map(b => bookingCard(b, 'var(--success)')).join('');
+    }
+
+    // Sales summary at bottom
+    const salesList = Object.entries(bySales);
+    if (salesList.length > 0) {
+      html += `<div style="margin-top:16px;padding:12px 14px;background:white;border-radius:10px;border:1px solid var(--cream2);">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--gold-dark);font-weight:600;margin-bottom:10px;">👤 Rekap Per Sales</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          ${salesList.map(([s, bks]) => `
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+              <span style="color:var(--dark);font-weight:500;">${s}</span>
+              <div style="display:flex;gap:6px;">
+                ${bks.filter(b=>b.rooms&&b.rooms.length).length ? `<span class="badge badge-info">${bks.filter(b=>b.rooms&&b.rooms.length).length} Kamar</span>` : ''}
+                ${bks.filter(b=>b.aula&&b.aula.length).length  ? `<span class="badge badge-success">${bks.filter(b=>b.aula&&b.aula.length).length} Aula</span>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    body.innerHTML = html;
+  }
+  document.getElementById('day-modal').classList.add('open');
+}
+
+function refreshDayModal(dateStr) {
+  const tab = document.getElementById('day-tab')?.value || 'all';
+  let dayBookings = bookings.filter(b => b.checkin <= dateStr && b.checkout > dateStr && b.status !== 'cancelled');
+
+  if (tab === 'kamar') dayBookings = dayBookings.filter(b => b.rooms && b.rooms.length > 0);
+  else if (tab === 'aula') dayBookings = dayBookings.filter(b => b.aula && b.aula.length > 0);
+  else if (tab.startsWith('sales:')) {
+    const s = tab.replace('sales:', '');
+    dayBookings = dayBookings.filter(b => (b.sales || '(Tanpa Sales)') === s);
+  }
+
+  const cardStyle = `background:var(--cream);padding:14px 16px;border-radius:10px;margin-bottom:10px;cursor:pointer;border-left:4px solid`;
+  const bookingCard = (b, borderColor) => `
+    <div style="${cardStyle} ${borderColor};" onclick="document.getElementById('day-modal').classList.remove('open');showDetail('${b.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong style="font-size:14px;">${b.name}</strong>
+        ${getStatusBadge(b.status)}
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:10px;">
+        ${b.rooms && b.rooms.length ? `<span>🛏️ ${b.rooms.map(r=>r.label).join(', ')}</span>` : ''}
+        ${b.aula  && b.aula.length  ? `<span>🏛️ ${b.aula.join(', ')}</span>` : ''}
+        ${b.sales ? `<span>👤 ${b.sales}</span>` : ''}
+        <span>📅 ${formatDate(b.checkin)} – ${formatDate(b.checkout)}</span>
+      </div>
+    </div>`;
+
+  const kamarBk = dayBookings.filter(b => b.rooms && b.rooms.length > 0);
+  const aulaBk  = dayBookings.filter(b => b.aula  && b.aula.length  > 0);
+
+  // Save current tab value
+  const currentTabVal = tab;
+
+  const body = document.getElementById('day-modal-body');
+  let list = '';
+  if (tab === 'kamar' || (tab === 'all' && kamarBk.length)) {
+    if (tab === 'all') list += `<div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--info);font-weight:600;margin-bottom:8px;">🛏️ Kamar</div>`;
+    list += kamarBk.map(b => bookingCard(b, 'var(--info)')).join('');
+  }
+  if (tab === 'aula' || (tab === 'all' && aulaBk.length)) {
+    if (tab === 'all') list += `<div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--success);font-weight:600;margin:12px 0 8px;">🏛️ Aula</div>`;
+    list += aulaBk.map(b => bookingCard(b, 'var(--success)')).join('');
+  }
+  if (tab.startsWith('sales:')) {
+    list += dayBookings.map(b => bookingCard(b, 'var(--gold)')).join('');
+  }
+  if (!list) list = '<p style="text-align:center;padding:20px;color:var(--text-muted)">Tidak ada booking untuk filter ini.</p>';
+
+  // Re-render only the list part (keep the select dropdown)
+  const selectEl = body.querySelector('#day-tab');
+  const selectOuterHtml = selectEl ? selectEl.parentElement.outerHTML : '';
+  body.innerHTML = selectOuterHtml + list;
+  if (body.querySelector('#day-tab')) body.querySelector('#day-tab').value = currentTabVal;
+  body.querySelectorAll('#day-tab').forEach(el => el.onchange = () => refreshDayModal(dateStr));
+}
+
+// ====================== GLOBAL SEARCH ======================
+let searchDebounce = null;
+
+function runGlobalSearch(q) {
+  clearTimeout(searchDebounce);
+  const clearBtn  = document.getElementById('search-clear-btn');
+  const countEl   = document.getElementById('search-result-count');
+  const resEl     = document.getElementById('global-search-results');
+  const container = document.getElementById('search-bar-container');
+  if (clearBtn) clearBtn.style.display = q.length ? 'flex' : 'none';
+  if (!q.trim()) { closeGlobalSearch(); if (countEl) countEl.textContent = ''; return; }
+  searchDebounce = setTimeout(() => {
+    const term = q.trim().toLowerCase();
+    const today = new Date().toISOString().split('T')[0];
+    // Match any booking whose relevant fields contain the term
+    const matched = bookings.filter(b => {
+      if (b.status === 'cancelled') return false;
+      const haystack = [
+        b.name, b.phone, b.company, b.address, b.sales,
+        b.wishes, b.reservationType, b.createdBy,
+        ...(b.rooms||[]).map(r => r.label),
+        ...(b.rooms||[]).map(r => r.id),
+        ...(b.aula||[]),
+        ...(b.services||[]),
+      ].filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(term);
+    });
+    // Sort: past bookings last, upcoming/active first (by checkin asc)
+    matched.sort((a, b) => {
+      const aPast = a.checkout < today ? 1 : 0;
+      const bPast = b.checkout < today ? 1 : 0;
+      if (aPast !== bPast) return aPast - bPast;
+      return a.checkin.localeCompare(b.checkin);
+    });
+    if (countEl) countEl.textContent = matched.length ? matched.length + ' jadwal' : '';
+    renderSearchResults(matched, term, resEl);
+    if (container) container.style.borderColor = 'var(--gold)';
+  }, 180);
+}
+
+function renderSearchResults(results, term, resEl) {
+  resEl.style.display = 'block';
+  if (results.length === 0) {
+    resEl.innerHTML = '<div style="padding:28px 20px;text-align:center;color:var(--text-muted);">'
+      + '<div style="font-size:28px;margin-bottom:8px;">🔎</div>'
+      + '<div style="font-size:14px;">Tidak ada jadwal untuk <strong>"' + term + '"</strong></div>'
+      + '<div style="font-size:12px;margin-top:4px;">Coba: nama tamu, nama kamar, aula, lapangan, sales...</div>'
+      + '</div>';
+    return;
+  }
+  const bulanID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const today   = new Date().toISOString().split('T')[0];
+  const fmtDate = d => { if (!d) return '-'; const x = new Date(d+'T00:00:00'); return x.getDate()+' '+bulanID[x.getMonth()]+' '+x.getFullYear(); };
+  const statusLabel = { booking:'Booking', confirmed:'Confirmed', checkin:'Check-in', checkout:'Selesai', cancelled:'Dibatal', postponed:'Ditunda' };
+  const statusColor = { booking:'var(--info)', confirmed:'var(--success)', checkin:'#2E7D52', checkout:'var(--text-muted)', cancelled:'var(--danger)', postponed:'var(--warning)' };
+
+  const hl = (txt) => {
+    if (!txt || !term) return txt || '';
+    return String(txt).replace(new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'<b style="background:rgba(201,168,76,0.4);border-radius:3px;padding:0 2px;font-weight:700;">$&</b>');
+  };
+
+  let html = '<div style="padding:10px 16px 6px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream2);">'
+    + '<span style="font-size:12px;color:var(--text-muted);">📅 Diurutkan dari jadwal terdekat</span>'
+    + '<span style="font-size:12px;font-weight:600;color:var(--gold-dark);">' + results.length + ' jadwal ditemukan</span>'
+    + '</div>';
+
+  results.forEach(b => {
+    const isPast    = b.checkout < today;
+    const isToday   = b.checkin === today;
+    const isActive  = b.status === 'checkin';
+
+    // Compact location summary
+    const rooms = b.rooms || [];
+    const aulas = b.aula  || [];
+    let loc = '-';
+    if (rooms.length > 0) {
+      // Get building name from first room id
+      const bldKey = rooms[0].id ? rooms[0].id.split('_')[0] : '';
+      const bldName = getBuildingName(bldKey) || 'Kamar';
+      loc = rooms.length === 1 ? rooms[0].label : bldName + ' · ' + rooms.length + ' kamar';
+    } else if (aulas.length > 0) {
+      loc = aulas.length === 1 ? aulas[0] : aulas.slice(0,2).join(', ') + (aulas.length > 2 ? ' +' + (aulas.length-2) : '');
+    }
+    const sc        = statusColor[b.status] || 'var(--text-muted)';
+    const sl        = statusLabel[b.status] || b.status;
+
+    // Left accent color
+    let accentColor = 'var(--gold)';
+    if (isActive)   accentColor = 'var(--success)';
+    if (isPast)     accentColor = 'var(--cream2)';
+    if (isToday && !isActive) accentColor = 'var(--warning)';
+
+    const dateRange = fmtDate(b.checkin) + ' → ' + fmtDate(b.checkout);
+    const daysLeft  = Math.ceil((new Date(b.checkin) - new Date()) / 86400000);
+    let badge = '';
+    if (isActive)              badge = '<span style="font-size:10px;background:#D4EDDA;color:#2E7D52;border-radius:10px;padding:2px 8px;font-weight:700;">● Sedang Menginap</span>';
+    else if (isToday)          badge = '<span style="font-size:10px;background:#FDEBD0;color:var(--warning);border-radius:10px;padding:2px 8px;font-weight:700;">Check-in Hari Ini</span>';
+    else if (!isPast && daysLeft >= 0 && daysLeft <= 7) badge = '<span style="font-size:10px;background:var(--info-bg);color:var(--info);border-radius:10px;padding:2px 8px;font-weight:700;">' + daysLeft + ' hari lagi</span>';
+    else if (isPast)           badge = '<span style="font-size:10px;background:var(--cream2);color:var(--text-muted);border-radius:10px;padding:2px 8px;">Selesai</span>';
+
+    html += '<div onclick="closeGlobalSearch();showDetail(\'' + b.id + '\')" '
+      + 'style="display:flex;align-items:stretch;gap:0;border-bottom:1px solid var(--cream2);cursor:pointer;transition:background 0.12s;" '
+      + 'onmouseover="this.style.background=\'var(--cream)\'" onmouseout="this.style.background=\'white\'">'
+      // Left accent bar
+      + '<div style="width:4px;background:'+accentColor+';flex-shrink:0;border-radius:0;"></div>'
+      + '<div style="flex:1;padding:12px 16px;">'
+        + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">'
+          + '<span style="font-weight:700;font-size:14px;color:var(--dark);">'+hl(b.name)+'</span>'
+          + badge
+          + '<span style="margin-left:auto;font-size:11px;color:'+sc+';font-weight:600;">'+sl+'</span>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text-muted);flex-wrap:wrap;">'
+          + '<span>📍 '+hl(loc)+'</span>'
+          + '<span>📅 '+dateRange+'</span>'
+          + (b.sales ? '<span>👤 '+hl(b.sales)+'</span>' : '')
+          + (b.phone ? '<span>📞 '+hl(b.phone)+'</span>' : '')
+        + '</div>'
+      + '</div>'
+      + '</div>';
+  });
+
+  resEl.innerHTML = html;
+}
+
+function closeGlobalSearch() {
+  const resEl    = document.getElementById('global-search-results');
+  const container = document.getElementById('search-bar-container');
+  if (resEl)    resEl.style.display = 'none';
+  if (container) container.style.borderColor = 'var(--cream2)';
+}
+
+function clearGlobalSearch() {
+  const inp = document.getElementById('global-search-input');
+  if (inp) inp.value = '';
+  const clearBtn = document.getElementById('search-clear-btn');
+  const countEl  = document.getElementById('search-result-count');
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (countEl)  countEl.textContent = '';
+  closeGlobalSearch();
+  if (inp) inp.focus();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') clearGlobalSearch(); });
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('global-search-wrap');
+  if (wrap && !wrap.contains(e.target)) closeGlobalSearch();
+});
+
+function grantAccess(bookingId) {
+  const sel = document.getElementById('delegate-select');
+  if (!sel || !sel.value) { showToast('Pilih akun terlebih dahulu.', 'error'); return; }
+  const email = sel.value;
+  const b = bookings.find(x => x.id === bookingId);
+  if (!b) return;
+  if (!isOwner(b) && !isSuperUser()) { showToast('Hanya pemilik booking atau admin yang bisa mengatur izin.', 'error'); return; }
+  const current = b.allowedEditors || [];
+  if (current.includes(email)) { showToast('Akun sudah memiliki akses.', 'error'); return; }
+  bookingsRef.child(bookingId).update({ allowedEditors: [...current, email] })
+    .then(() => { showToast(`✅ Akses edit diberikan ke ${email}`, 'success'); showDetail(bookingId); })
+    .catch(err => showToast('Error: ' + err.message, 'error'));
+}
+
+function revokeAccess(bookingId, email) {
+  const b = bookings.find(x => x.id === bookingId);
+  if (!b) return;
+  if (!isOwner(b) && !isSuperUser()) { showToast('Hanya pemilik booking atau admin yang bisa mencabut izin.', 'error'); return; }
+  const updated = (b.allowedEditors || []).filter(e => e !== email);
+  bookingsRef.child(bookingId).update({ allowedEditors: updated })
+    .then(() => { showToast(`🔒 Akses edit ${email} dicabut`, 'success'); showDetail(bookingId); })
+    .catch(err => showToast('Error: ' + err.message, 'error'));
+}
+
+function printBooking() { window.print(); }
+</script>
+</body>
+</html>

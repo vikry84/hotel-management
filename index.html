@@ -654,10 +654,7 @@ tr:hover td { background: var(--cream); }
   </div>
 
   <div id="floorplan-content">
-    <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
-      <div style="font-size:48px;margin-bottom:12px;">🏨</div>
-      <p style="font-size:15px;">Pilih kategori dan gedung untuk melihat denah kamar.</p>
-    </div>
+    <div id="floorplan-default-view"></div>
   </div>
 </div>
 
@@ -989,17 +986,38 @@ tr:hover td { background: var(--cream); }
         <div class="form-section">
           <div class="form-section-title">Sewa Aula</div>
           <div class="form-group">
-            <div class="checkbox-group">
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK"> BSK</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 2"> BSK 2</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 3"> BSK 3</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="Bougenvile"> Bougenvile</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="Beringin"> Beringin</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="Melati A"> Melati A</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="Bhaksana"> Bhaksana</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="Nusa Ina"> Nusa Ina</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="Timor 1"> Timor 1</label>
-              <label class="checkbox-item"><input type="checkbox" name="aula" value="Timor 2"> Timor 2</label>
+            <!-- Melati -->
+            <div style="margin-bottom:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--gold-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏢 Gedung Melati</div>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Aula Melati A"> Aula Melati A <span style="font-size:10px;color:var(--text-muted);">(Lt.1, 150 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Bhojana"> Bhojana <span style="font-size:10px;color:var(--text-muted);">(Lt.1, 120 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Bhojanadi"> Bhojanadi <span style="font-size:10px;color:var(--text-muted);">(Lt.2, 200 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Aula Bougenvile"> Aula Bougenvile <span style="font-size:10px;color:var(--text-muted);">(Lt.3, 250 org)</span></label>
+              </div>
+            </div>
+            <!-- Kinasih -->
+            <div style="margin-bottom:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--gold-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏢 Gedung Kinasih</div>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Nusa Ina"> Nusa Ina <span style="font-size:10px;color:var(--text-muted);">(Lt.2, 250 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Bhaksana"> Bhaksana <span style="font-size:10px;color:var(--text-muted);">(Lt.3, 200 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Timor 1"> Timor 1 <span style="font-size:10px;color:var(--text-muted);">(Lt.3, 100 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Timor 2"> Timor 2 <span style="font-size:10px;color:var(--text-muted);">(Lt.3, 60 org)</span></label>
+              </div>
+            </div>
+            <!-- BSK -->
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--gold-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🏢 Gedung BSK</div>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Aula BSK"> Aula BSK <span style="font-size:10px;color:var(--text-muted);">(Lt.1, 700 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="RM. BSK"> RM. BSK <span style="font-size:10px;color:var(--text-muted);">(Lt.1, 200 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="Aula BSK Lt.2"> Aula BSK Lt.2 <span style="font-size:10px;color:var(--text-muted);">(Lt.2, 400 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 2"> BSK 2 <span style="font-size:10px;color:var(--text-muted);">(Lt.2, 80 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 3"> BSK 3 <span style="font-size:10px;color:var(--text-muted);">(Lt.2, 80 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 4"> BSK 4 <span style="font-size:10px;color:var(--text-muted);">(Lt.2, 80 org)</span></label>
+                <label class="checkbox-item"><input type="checkbox" name="aula" value="BSK 5"> BSK 5 <span style="font-size:10px;color:var(--text-muted);">(Lt.2, 80 org)</span></label>
+              </div>
             </div>
           </div>
           <div class="form-grid" style="margin-top: 15px;">
@@ -1276,20 +1294,42 @@ const DEFAULT_BUILDINGS = {
   maesaan: { name: 'Cottage Maesaan', type: 'cottage', floors: [{ name: 'Unit', rooms: 4, vip: 0 }] },
   bungalow: { name: 'Bungalow Waipee', type: 'bungalow', floors: [{ name: 'Unit', rooms: 16, vip: 0, prefix: 'Waipee ' }] },
   'vip-kamboja': { name: 'Kamar VIP Kamboja', type: 'vip', floors: [{ name: 'VIP', rooms: 5, vip: 5 }] },
-  'aula-hall': { name: 'Sewa Aula', type: 'aula', floors: [
-    { name: 'Aula', rooms: 0, vip: 0, special: [
-      { id: 'BSK', label: 'BSK', cap: 700 },
-      { id: 'BSK2', label: 'BSK 2', cap: 50 },
-      { id: 'BSK3', label: 'BSK 3', cap: 50 },
-      { id: 'Bougenvile', label: 'Bougenvile', cap: 250 },
-      { id: 'Beringin', label: 'Beringin', cap: 120 },
-      { id: 'MelatiA', label: 'Melati A', cap: 150 },
-      { id: 'Bhaksana', label: 'Bhaksana', cap: 200 },
+  // ===== AULA PER GEDUNG =====
+  'aula-melati': { name: 'Aula Gedung Melati', type: 'aula', floors: [
+    { name: 'Lantai 1', rooms: 0, vip: 0, special: [
+      { id: 'MelatiA',  label: 'Aula Melati A', cap: 150 },
+      { id: 'Bhojana',  label: 'Bhojana',       cap: 120 },
+    ]},
+    { name: 'Lantai 2', rooms: 0, vip: 0, special: [
+      { id: 'Bhojanadi', label: 'Bhojanadi', cap: 200 },
+    ]},
+    { name: 'Lantai 3', rooms: 0, vip: 0, special: [
+      { id: 'Bougenvile', label: 'Aula Bougenvile', cap: 250 },
+    ]},
+  ]},
+  'aula-kinasih': { name: 'Aula Gedung Kinasih', type: 'aula', floors: [
+    { name: 'Lantai 2', rooms: 0, vip: 0, special: [
       { id: 'NusaIna', label: 'Nusa Ina', cap: 250 },
-      { id: 'Timor1', label: 'Timor 1', cap: 100 },
-      { id: 'Timor2', label: 'Timor 2', cap: 60 }
-    ]}
-  ]}
+    ]},
+    { name: 'Lantai 3', rooms: 0, vip: 0, special: [
+      { id: 'Bhaksana', label: 'Bhaksana', cap: 200 },
+      { id: 'Timor1',   label: 'Timor 1',  cap: 100 },
+      { id: 'Timor2',   label: 'Timor 2',  cap: 60  },
+    ]},
+  ]},
+  'aula-bsk': { name: 'Aula & RM Gedung BSK', type: 'aula', floors: [
+    { name: 'Lantai 1', rooms: 0, vip: 0, special: [
+      { id: 'AulaBSK', label: 'Aula BSK',  cap: 700 },
+      { id: 'RMBSK',   label: 'RM. BSK',   cap: 200 },
+    ]},
+    { name: 'Lantai 2', rooms: 0, vip: 0, special: [
+      { id: 'AulaBSK2', label: 'Aula BSK (Lt.2)', cap: 400 },
+      { id: 'BSK2',  label: 'BSK 2', cap: 80  },
+      { id: 'BSK3',  label: 'BSK 3', cap: 80  },
+      { id: 'BSK4',  label: 'BSK 4', cap: 80  },
+      { id: 'BSK5',  label: 'BSK 5', cap: 80  },
+    ]},
+  ]},
 };
 
 let BUILDINGS = {};
@@ -1411,7 +1451,7 @@ function navigate(page) {
   closeSidebar();
   if (page === 'calendar') renderCalendar();
   if (page === 'floorplan') {
-    // Only re-render if a building is already selected via dropdown
+    renderFloorplanDefault();
     const bldVal = document.getElementById('fp-building')?.value;
     if (bldVal) renderFloorplan();
   }
@@ -1884,8 +1924,24 @@ function renderBookingTable(list) {
       </td>
       <td><span class="badge badge-gray">${b.guestCount} Orang</span></td>
       <td>
-        <div style="max-width:200px; font-size:13px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(b.rooms||[]).map(r=>r.label).join(', ')}">
-            ${(b.rooms||[]).map(r=>r.label).join(', ') || '-'}
+        <div style="max-width:200px; font-size:13px;">
+            ${(() => {
+              const rooms = b.rooms || [];
+              if (!rooms.length) return '<span style="color:var(--text-muted);">-</span>';
+              const groups = {};
+              rooms.forEach(r => {
+                const parts = r.id.split('_');
+                const bk = parts[0], fl = parts[1] || '';
+                const key = bk + '|' + fl;
+                if (!groups[key]) groups[key] = { bk, fl, n: 0 };
+                groups[key].n++;
+              });
+              return Object.values(groups).map(g => {
+                const bldShort = getBuildingName(g.bk).replace('Gedung ','').replace('Cottage ','Ctg. ').replace('Bungalow ','Bgw. ');
+                const flShort  = g.fl.replace('Lantai ','Lt.').replace('Unit','Unit').replace('VIP','VIP');
+                return `<span style="display:inline-block;background:var(--info-bg);color:var(--info);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;margin:1px;">${bldShort} ${flShort} · ${g.n}</span>`;
+              }).join('');
+            })()}
         </div>
       </td>
       <td>${formatDate(b.checkin)}</td>
@@ -2213,14 +2269,49 @@ function showDetail(id) {
     </div>
 
     <div style="margin-bottom:20px;">
-        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:8px;">Kamar & Ruangan:</label>
-        <div style="display:flex; flex-wrap:wrap; gap:8px;">
-            ${(b.rooms || []).map(r => `
-                <span style="background:var(--info-bg); color:var(--info); padding:6px 12px; border-radius:20px; font-size:13px; font-weight:500; border:1px solid rgba(31,97,141,0.1);">
-                    ${r.label}
-                </span>
-            `).join('') || '<span style="color:var(--text-muted);">Tidak ada kamar dipilih</span>'}
-        </div>
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:10px;">Kamar & Ruangan:</label>
+        ${(() => {
+            const rooms = b.rooms || [];
+            const aulas = b.aula  || [];
+            if (!rooms.length && !aulas.length) return '<span style="color:var(--text-muted);font-size:13px;">Tidak ada kamar dipilih</span>';
+
+            // Group rooms by building+floor
+            const groups = {};
+            rooms.forEach(r => {
+                const parts = r.id.split('_');
+                const bk = parts[0], fl = parts[1] || '';
+                const key = bk + '|' + fl;
+                if (!groups[key]) groups[key] = { bk, fl, rooms: [] };
+                groups[key].rooms.push(r);
+            });
+
+            const roomChips = Object.values(groups).map(g => {
+                const bldName  = getBuildingName(g.bk);
+                const flShort  = g.fl.replace('Lantai ','Lt. ').replace('Unit','Unit').replace('VIP','VIP');
+                const allNames = g.rooms.map(r => r.label).join(', ');
+                return `<div title="${allNames}" style="background:var(--info-bg);border:1px solid rgba(31,97,141,0.15);border-radius:12px;padding:10px 14px;display:inline-flex;flex-direction:column;gap:3px;cursor:default;min-width:120px;">
+                    <span style="font-size:11px;color:var(--info);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${bldName}</span>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                        <span style="font-size:13px;font-weight:600;color:var(--dark);">${flShort}</span>
+                        <span style="background:var(--info);color:white;border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700;">${g.rooms.length} kamar</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const aulaChips = aulas.map(a =>
+                `<div style="background:var(--success-bg);border:1px solid rgba(46,125,82,0.15);border-radius:12px;padding:10px 14px;display:inline-flex;flex-direction:column;gap:3px;min-width:120px;">
+                    <span style="font-size:11px;color:var(--success);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Aula / Hall</span>
+                    <span style="font-size:13px;font-weight:600;color:var(--dark);">🏛️ ${a}</span>
+                </div>`
+            ).join('');
+
+            const totalRooms = rooms.length;
+            const summary = totalRooms > 0
+                ? `<div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Total: <strong style="color:var(--dark);">${totalRooms} kamar</strong> dipilih</div>`
+                : '';
+
+            return `<div style="display:flex;flex-wrap:wrap;gap:8px;">${roomChips}${aulaChips}</div>${summary}`;
+        })()}
     </div>
 
     ${b.ktpUrl ? `
@@ -3217,21 +3308,102 @@ function renderBuildingSelector() {
   // Legacy: no-op — handled by new dropdown system
 }
 
+function renderFloorplanDefault() {
+  const el = document.getElementById('floorplan-default-view');
+  if (!el) return;
+  const today   = new Date().toISOString().split('T')[0];
+  const weekEnd = new Date(Date.now() + 7*86400000).toISOString().split('T')[0];
+  const bulanID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const fmtD = d => { if(!d) return '-'; const x=new Date(d+'T00:00:00'); return x.getDate()+' '+bulanID[x.getMonth()]; };
+
+  // Active check-ins today
+  const activeNow = bookings.filter(b => b.status==='checkin' && b.checkin<=today && b.checkout>today)
+    .sort((a,b) => a.checkout.localeCompare(b.checkout));
+  // Upcoming 7 days
+  const upcoming  = bookings.filter(b => b.status!=='cancelled' && b.checkin>today && b.checkin<=weekEnd)
+    .sort((a,b) => a.checkin.localeCompare(b.checkin));
+  // Checkout today
+  const checkouts = bookings.filter(b => b.checkout===today && b.status==='checkin');
+
+  function miniCard(b, accent) {
+    const rooms = (b.rooms||[]);
+    const aulas = (b.aula||[]);
+    const groups = {};
+    rooms.forEach(r => {
+      const parts=r.id.split('_'); const bk=parts[0],fl=parts[1]||'';
+      const key=bk+'|'+fl;
+      if(!groups[key]) groups[key]={bk,fl,n:0};
+      groups[key].n++;
+    });
+    const locChips = Object.values(groups).map(g =>
+      `<span style="background:var(--info-bg);color:var(--info);border-radius:8px;padding:1px 7px;font-size:11px;font-weight:600;">${getBuildingName(g.bk).replace('Gedung ','').replace('Cottage ','Ctg.')} ${g.fl.replace('Lantai ','Lt.')} ·${g.n}</span>`
+    ).join('') + aulas.map(a =>
+      `<span style="background:var(--success-bg);color:var(--success);border-radius:8px;padding:1px 7px;font-size:11px;font-weight:600;">🏛️${a}</span>`
+    ).join('');
+
+    return `<div onclick="showDetail('${b.id}')" style="background:white;border:1.5px solid ${accent}33;border-left:4px solid ${accent};border-radius:10px;padding:12px 14px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow=''">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong style="font-size:14px;color:var(--dark);">${b.name}</strong>
+        <span style="font-size:11px;color:${accent};font-weight:600;">${b.checkin===today?'Check-in Hari Ini': b.checkout===today?'CO Hari Ini': 'Masuk '+fmtD(b.checkin)}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">${locChips||'<span style="font-size:11px;color:var(--text-muted);">-</span>'}</div>
+      <div style="font-size:11px;color:var(--text-muted);">👥 ${b.guestCount||'-'} orang &nbsp;·&nbsp; 📅 ${fmtD(b.checkin)} → ${fmtD(b.checkout)}${b.sales?' &nbsp;·&nbsp; 👤 '+b.sales:''}</div>
+    </div>`;
+  }
+
+  let html = '';
+
+  if (checkouts.length) {
+    html += `<div style="margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:10px;display:flex;align-items:center;gap:8px;">📤 Check-out Hari Ini <span style="background:var(--danger-bg);color:var(--danger);border-radius:20px;padding:2px 10px;font-size:12px;">${checkouts.length}</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">${checkouts.map(b=>miniCard(b,'#C0392B')).join('')}</div>
+    </div>`;
+  }
+
+  if (activeNow.length) {
+    html += `<div style="margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:10px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;animation:pulse-green 2s infinite;"></span> Sedang Menginap <span style="background:var(--success-bg);color:var(--success);border-radius:20px;padding:2px 10px;font-size:12px;">${activeNow.length}</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">${activeNow.map(b=>miniCard(b,'#2E7D52')).join('')}</div>
+    </div>`;
+  }
+
+  if (upcoming.length) {
+    html += `<div style="margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;color:var(--info);margin-bottom:10px;display:flex;align-items:center;gap:8px;">📥 Reservasi 7 Hari ke Depan <span style="background:var(--info-bg);color:var(--info);border-radius:20px;padding:2px 10px;font-size:12px;">${upcoming.length}</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">${upcoming.map(b=>miniCard(b,'#1F618D')).join('')}</div>
+    </div>`;
+  }
+
+  if (!html) {
+    html = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+      <div style="font-size:40px;margin-bottom:10px;">🏨</div>
+      <p style="font-size:14px;">Tidak ada reservasi aktif atau mendatang.</p>
+      <p style="font-size:12px;margin-top:4px;">Pilih kategori di atas untuk melihat denah kamar.</p>
+    </div>`;
+  } else {
+    html = `<div style="margin-bottom:16px;padding:12px 16px;background:var(--cream);border-radius:10px;border:1px solid var(--cream2);font-size:12px;color:var(--text-muted);">
+      ℹ️ Klik kartu untuk lihat detail. Gunakan dropdown di atas untuk melihat denah kamar.
+    </div>` + html;
+  }
+
+  el.innerHTML = html;
+}
+
 function onFloorplanCategoryChange() {
   const cat = document.getElementById('fp-category').value;
-  const bldSel = document.getElementById('fp-building');
+  const bldSel   = document.getElementById('fp-building');
   const floorSel = document.getElementById('fp-floor');
-  bldSel.innerHTML = '<option value="">-- Pilih gedung --</option>';
+  bldSel.innerHTML   = '<option value="">-- Pilih gedung --</option>';
   floorSel.innerHTML = '<option value="all">Semua Lantai</option>';
   document.getElementById('fp-stat-pills').innerHTML = '';
-  document.getElementById('floorplan-content').innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-muted);"><div style="font-size:40px;margin-bottom:12px;">🏗️</div><p>Pilih gedung untuk melihat denah.</p></div>';
+  document.getElementById('floorplan-content').innerHTML = '<div id="floorplan-default-view"></div>';
+  renderFloorplanDefault();
   if (!cat) return;
   Object.entries(BUILDINGS).filter(([,b]) => b.type === cat).forEach(([k, b]) => {
     const opt = document.createElement('option');
     opt.value = k; opt.textContent = b.name;
     bldSel.appendChild(opt);
   });
-  // Auto-select if only one building in category
   if (bldSel.options.length === 2) { bldSel.selectedIndex = 1; onFloorplanBuildingChange(); }
 }
 
